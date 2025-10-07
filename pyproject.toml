@@ -1,102 +1,18 @@
 [project]
 name = "cld-mmrag"
 version = "0.1.0"
-description = "MS-Native Late Interaction RAG system using Microsoft-native encoders (Florence-2 or Phi-3 Vision)"
+description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9"
-authors = [
-    {name = "Your Name", email = "your.email@example.com"}
-]
-keywords = ["rag", "multimodal", "azure", "florence", "phi3", "document-intelligence", "late-interaction"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Text Processing :: Indexing",
-]
+requires-python = ">=3.13"
 dependencies = [
-    # Azure SDK dependencies
-    "azure-storage-blob>=12.19.0",
-    "azure-search-documents>=11.4.0",
-    "azure-ai-documentintelligence>=1.0.0b1",
-    "azure-core>=1.29.0",
-    "openai>=1.12.0",
-    # ML and Vision dependencies
-    "transformers>=4.36.0",
-    "torch>=2.1.0",
-    "torchvision>=0.16.0",
-    "numpy>=1.24.0",
-    "pillow>=10.0.0",
-    # Document processing
-    "pymupdf>=1.23.0", # For PDF processing
-    # General utilities
-    "requests>=2.31.0",
-    "python-dotenv>=1.0.0", # For environment variable management
+    "dotenv>=0.9.9",
+    "einops>=0.8.1",
+    "httpx>=0.28.1",
+    "matplotlib>=3.10.6",
+    "numpy>=2.3.3",
+    "pymupdf>=1.26.4",
+    "requests>=2.32.5",
+    "seaborn>=0.13.2",
+    "torch>=2.8.0",
+    "tqdm>=4.67.1",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.21.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "flake8>=6.0.0",
-    "mypy>=1.5.0",
-    "pre-commit>=3.4.0",
-]
-
-[project.scripts]
-ms-rag = "ms_rag.main:main"
-
-[project.urls]
-Homepage = "https://github.com/yourusername/cld-mmrag"
-Repository = "https://github.com/yourusername/cld-mmrag"
-Issues = "https://github.com/yourusername/cld-mmrag/issues"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["ms_rag"]
-
-[tool.black]
-line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 88
-known_first_party = ["ms_rag"]
-
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
