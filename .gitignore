@@ -137,6 +137,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
 .envrc
 .venv
 env/
@@ -209,3 +210,4 @@ __marimo__/
 
 # PRIVATE FILES
 data/
+model_cache/
