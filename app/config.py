@@ -40,7 +40,8 @@ class AzureOpenAIConfig:
     endpoint: str
     api_key: str
     deployment_name: str = "gpt-4o"
-    api_version: str = "2024-02-01"
+    embedding_model: str = "text-embedding-3-small"
+    api_version: str = "2024-05-01-preview"
 
 
 @dataclass
@@ -60,6 +61,14 @@ class SystemConfig:
     max_pages_per_doc: int = 100
     default_k: int = 10
 
+@dataclass
+class IndexingConfig:
+    chunk_max_chars: int = 2200
+    chunk_overlap_chars: int = 220
+    embed_batch_size: int = 64
+    upload_batch_size: int = 500
+    include_tables: bool = True
+    supported_exts: tuple[str, ...] = (".pdf", ".docx", ".pptx", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
 
 class Config:
     """Central configuration manager."""
@@ -85,6 +94,8 @@ class Config:
             api_key=os.getenv("AZURE_OPENAI_API_KEY", ""),
             deployment_name=os.getenv("AZURE_OPENAI_MODEL", "o4-mini")
         )
+
+        self.indexing = IndexingConfig()
         
         model_choice_env = os.getenv("MODEL_CHOICE", "florence2")
         model_choice: Literal["florence2", "phi3-vision"] = "florence2" if model_choice_env not in ["florence2", "phi3-vision"] else model_choice_env  # pyright: ignore[reportAssignmentType]
