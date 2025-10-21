@@ -1,5 +1,5 @@
 from typing import List
-import re
+import logging, re, time
 
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
@@ -7,14 +7,15 @@ from azure.search.documents.models import VectorizedQuery
 
 from config import config
 from tools.models import SearchInput, SearchOutput, Hit
+from indexer import get_embedding
 
-from indexer import aoai_client, get_embedding
+logger = logging.getLogger("tool.search_docs")
 
 def _search_client() -> SearchClient:
     return SearchClient(
-        config.ai_search.endpoint,
-        config.ai_search.index_name,
-        AzureKeyCredential(config.ai_search.api_key)
+        endpoint=config.ai_search.endpoint,
+        index_name=config.ai_search.index_name,
+        credential=AzureKeyCredential(config.ai_search.api_key),
     )
 
 def _make_snippet(text: str, query: str, length: int = 300) -> str:
@@ -30,36 +31,51 @@ def _make_snippet(text: str, query: str, length: int = 300) -> str:
     return (text[:length]).replace("\n", " ")
 
 def search_docs(inp: SearchInput) -> SearchOutput:
+    TOP_K = 100 # for bm25 search and then maybe rerank top 8 or sth like that
     sc = _search_client()
 
-    # embed the query, hybrid
+    # 1) Embed the query
+    t0 = time.perf_counter()
     qvec = get_embedding([inp.query])[0]
-    print("here is the query vec", qvec[0:10])
+    logger.debug("embedding[:8]=%s … (len=%d)", qvec[:8], len(qvec))
 
-    results = sc.search(
-        search_text=inp.query or "*",
-        vectors=[
-            VectorizedQuery(
-                vector=qvec,
-                k_nearest_neighbors=inp.top_k,
-                fields="contentVector",
-                # weight=1.0,          # boost the vector part
-            )
-        ],
-        top=inp.top_k,
-        select=["id","title","page","section_path","content","@search.score"],
-    )
+    # 2) Hybrid search (keyword + vector)
+    try:
+        logger.info("AZSEARCH request query=%r top_k=%d", inp.query, TOP_K)
+        results_iter = sc.search(
+            search_text=inp.query or "",
+            vector_queries=[
+                VectorizedQuery(
+                    vector=qvec,
+                    k_nearest_neighbors=TOP_K,
+                    fields="contentVector", 
+                    # weight=1.0,  # optional boost
+                )
+            ],
+            top=TOP_K,
+            select=["id", "title", "page", "section_path", "content"],
+            logging_enable=True,
+        )
 
+        results = list(results_iter)  # force the request and materialize
+        dt = (time.perf_counter() - t0) * 1000
+        logger.info("AZSEARCH ok results=%d in %.1f ms", len(results), dt)
+
+    except Exception as e:
+        dt = (time.perf_counter() - t0) * 1000
+        logger.exception("AZSEARCH failed after %.1f ms: %s", dt, e)
+        raise
+
+    # 3) Map to your Hit model
     hits: List[Hit] = []
     for r in results:
-        print(r.get("content"))
         hits.append(Hit(
             id=r["id"],
             title=r.get("title", "") or "",
             page=int(r.get("page", 1) or 1),
             section_path=r.get("section_path", "") or "",
             snippet=_make_snippet(r.get("content", "") or "", inp.query),
-            score=float(r.get("@search.score", 0.0) or 0.0),
+            score=float(r.get("@search.score", 0.0) or 0.0),  # accessible without selecting it
         ))
 
     return SearchOutput(hits=hits)

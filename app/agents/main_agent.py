@@ -1,58 +1,123 @@
-from typing import List, Optional
+import logging, json
+from typing import List, Optional, Dict, Any, Callable
+from openai import AzureOpenAI, AsyncAzureOpenAI
 
-from tools.models import SearchInput, FetchInput, Chunk, TableQAInput, MathInput
-from tools.search_docs import search_docs
-from tools.fetch_chunks import fetch_chunks
-from tools.table_qa import table_qa
-from tools.math_eval import math_eval
-from tools.synthesize import synthesize_answer
+from tools.schema import OPENAI_TOOLS, TOOL_REGISTRY
 
-def answer_with_agent(query: str):
-    # fast math shortcut if user gives a pure expression
-    print("[START]: ANSWER WITH AGENT")
+from config import config
 
-    if all(ch in "0123456789.+-*/()% " for ch in query.strip()) and any(ch in "+-*/%" for ch in query):
-        print("[START]: math eval")
-        m = math_eval(MathInput(expression=query))
-        print("[END]: math eval")
-        return {
-            "answer": str(m.result),
-            "citations": [],
-            "follow_up": None
-        }
+logger = logging.getLogger("agent")
 
-    # 1) Retrieve
-    print("[START]: search docs")
-    hits = search_docs(SearchInput(query=query, top_k=8)).hits
-    print("[END]: search docs")
-    if not hits:
-        return {
-            "answer": "I couldn’t find evidence for that in your corpus.",
-            "citations": [],
-            "follow_up": "Try different keywords or upload more relevant files (PDF/DOCX/PPTX)."
-        }
+DEPLOYMENT = config.openai.deployment_name
+client = AzureOpenAI(
+    api_key=config.openai.api_key,
+    api_version=config.openai.api_version,
+    azure_endpoint=config.openai.endpoint,
+    azure_deployment=DEPLOYMENT
+)
 
-    # 2) Fetch full chunks for top hits
-    top_ids = [h.id for h in hits[:5]]
-    chunks: List[Chunk] = fetch_chunks(FetchInput(ids=top_ids)).chunks
+SYSTEM_PROMPT = """
+You are an agent that answers user questions using the provided tools and your own reasoning.
 
-    # 3) Decide on table_qa
-    table_note: Optional[str] = None
-    tabley = any(k in query.lower() for k in ["per ", " by ", "trend", "average", "sum", "max", "min"])
-    if tabley:
-        for c in chunks:
-            if c.content_markdown and c.content_markdown.strip().startswith("|"):
-                tqa = table_qa(TableQAInput(markdown=c.content_markdown, question=query))
-                table_note = tqa.short_answer
-                break
+Tool selection:
+- Use `search_docs` then `fetch_chunks` when you need evidence from the corpus. Don’t invent sources.
+- If the query asks for analytics over a Markdown table (avg/sum/min/max/trend/per/by), call `table_qa` on the first clearly relevant table.
+- Only use `math_eval` for pure math expressions; otherwise do not use it.
+- Minimize tool calls—only what’s needed for a high-quality answer.
 
-    # 4) Synthesize answer
-    answer = synthesize_answer(query, chunks, table_note=table_note)
+Citations:
+- If you used corpus content, include up to 3 citations in the final result (Title and page or section_path).
+- If no corpus used, omit citations.
 
-    # Build citations (top 3)
-    citations = [{"id": c.id, "title": c.title, "page": c.page, "section_path": c.section_path} for c in chunks[:3]]
-    return {
-        "answer": answer,
-        "citations": citations,
-        "follow_up": "Want me to narrow to a specific document or date range?"
-    }
+Answer style:
+- Start with the direct answer, then brief reasoning or steps.
+- If something is missing/ambiguous, state the gap and propose one concrete follow-up.
+
+Reliability:
+- Never fabricate tool outputs or citations.
+- Don’t expose raw tool payloads unless asked.
+- If a tool errors, report it briefly and proceed if possible.
+
+Finish condition (IMPORTANT)
+- When you are ready to finalize, you MUST call the `finalize_answer` function exactly once with the final JSON:
+  { "answer": string, "citations": [ {id,title,page,section_path}... ]?, "follow_up"?: string }
+- Never output extra text after calling `finalize_answer`.
+"""
+
+def run_agent(query: str) -> Dict[str, Any]:
+    """
+    Core agent loop:
+    1) Ask model what to do with tools
+    2) Execute any tool calls
+    3) Submit tool outputs
+    4) Repeat until status=completed
+    """
+    logger.info("[START] run_agent")
+
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": query},
+    ]
+
+    while True:
+        response = client.chat.completions.create(
+            model=config.openai.deployment_name,   # Azure deployment name
+            messages=messages,
+            tools=OPENAI_TOOLS,
+            tool_choice="auto",
+            temperature=0,
+        )
+
+        msg = response.choices[0].message
+        tool_calls = msg.tool_calls or []
+
+        if not tool_calls:
+            # Model tried to finish without finalize; allow but return unstructured answer
+            answer = (msg.content or "").strip() or "(no answer)"
+            return {
+                "answer": answer,
+                "citations": getattr(msg, "citations", None),
+                "follow_up": getattr(msg, "follow_up", None),
+            }
+        
+        # Keep the assistant turn that requested tools
+        messages.append({
+            "role": "assistant",
+            "content": msg.content,  # often None when tool_calls exist
+            "tool_calls": [tc.model_dump() for tc in tool_calls],
+        })
+
+        for tc in tool_calls:
+            name = tc.function.name
+            args = {}
+            try:
+                args = json.loads(tc.function.arguments or "{}")
+            except Exception:
+                pass
+
+            if name == "finalize_answer":
+                # THIS means we are at the end of the conversation
+                answer = args.get("answer", "") or "(no answer)"
+                citations = args.get("citations")
+                follow_up = args.get("follow_up")
+
+                logger.info("RETURNING NOW!")
+                return {
+                    "answer": answer,
+                    "citations": citations,
+                    "follow_up": follow_up,
+                }
+
+            # Otherwise: execute normal tools and append a tool message
+            try:
+                out = TOOL_REGISTRY.get(name, lambda a: {"error": f"unknown tool {name}"})(args)
+            except Exception as e:
+                logger.exception("Tool %s failed", name)
+                out = {"error": f"{type(e).__name__}: {e}"}
+
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tc.id,
+                "name": name,
+                "content": json.dumps(out),  # string content for Chat Completions
+            })

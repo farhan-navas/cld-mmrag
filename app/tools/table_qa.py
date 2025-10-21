@@ -1,6 +1,9 @@
-import re
+import logging, re
+
 import pandas as pd
 from tools.models import TableQAInput, TableQAOutput
+
+logger = logging.getLogger("tool.table_qa")
 
 def _coerce_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
@@ -39,14 +42,20 @@ def _md_to_dataframe(md: str) -> pd.DataFrame:
     return df
 
 def table_qa(inp: TableQAInput) -> TableQAOutput:
+    logger.info("table_qa start question=%r md_chars=%d", inp.question, len(inp.markdown or ""))
+
     df = _md_to_dataframe(inp.markdown)
+    
+    logger.debug("table parsed rows=%d cols=%d", len(df), len(df.columns))
     if df.empty:
+        logger.info("table_qa empty_table")
         return TableQAOutput(short_answer="I couldn’t parse the table.", analysis="No rows/cols parsed.")
 
     q = inp.question.lower()
 
     # sum/avg/min/max of a column
     m = re.search(r"(sum|average|avg|max|min)\s+of\s+([A-Za-z0-9 _\-]+)", q)
+
     if m:
         op, col = m.group(1), m.group(2).strip()
         if col in df.columns:
@@ -59,6 +68,8 @@ def table_qa(inp: TableQAInput) -> TableQAOutput:
                 val = float(series.max(skipna=True))
             else:
                 val = float(series.min(skipna=True))
+
+            logger.info("table_qa aggregate op=%s col=%s rows=%d", op, col, len(df))
             return TableQAOutput(
                 short_answer=f"{op} of {col}: {val:.4g}",
                 analysis=f"Computed {op} over column '{col}' on {len(df)} rows."
@@ -71,12 +82,15 @@ def table_qa(inp: TableQAInput) -> TableQAOutput:
         if col in df.columns:
             out = df[df[col].astype(str).str.lower() == val.lower()]
             head = out.head(5).to_dict(orient="records")
+            
+            logger.info("table_qa filter_eq col=%s val=%r matched_rows=%d", col, val, len(out))
             return TableQAOutput(
                 short_answer=f"{len(out)} matching rows (showing up to 5).",
                 analysis=f"Rows: {head}"
             )
 
     # fallback: describe table
+    logger.info("table_qa fallback columns=%s rows=%d", list(df.columns), len(df))
     return TableQAOutput(
         short_answer="I can summarize or compute aggregates if you specify a column.",
         analysis=f"Columns: {list(df.columns)} | Rows: {len(df)}"

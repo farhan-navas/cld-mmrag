@@ -1,6 +1,7 @@
-import os, uuid
+import os, uuid, logging
 from typing import List, Dict, Any
 from pathlib import Path
+from collections import defaultdict
 
 # Azure SDKs 
 from azure.core.credentials import AzureKeyCredential
@@ -8,8 +9,7 @@ from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
     SearchIndex, SearchField, SearchFieldDataType,
     SimpleField, SearchableField, VectorSearch, HnswAlgorithmConfiguration,
-    VectorSearchProfile, VectorSearchAlgorithmConfiguration, HnswParameters,
-    SearchSuggester
+    VectorSearchProfile, HnswParameters, SearchSuggester
 )
 
 from azure.search.documents import SearchClient
@@ -18,6 +18,8 @@ from azure.ai.documentintelligence.models import DocumentContentFormat
 
 from openai import AzureOpenAI
 from config import config
+
+logger = logging.getLogger("agent")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -52,11 +54,13 @@ def aoai_client():
 
 # Embeddings 
 def get_embedding(texts: List[str]) -> List[List[float]]:
+    logger.info("[START] embedding")
     client = aoai_client()
     resp = client.embeddings.create(
         input=texts,
         model=config.openai.embedding_model
     )
+
     return [d.embedding for d in resp.data]
 
 def embedding_dimension() -> int:
@@ -85,6 +89,8 @@ def ensure_index():
     )
     fields = [
         SimpleField(name="id", type=SearchFieldDataType.String, key=True),
+        SimpleField(name="doc_key", type=SearchFieldDataType.String, filterable=True, sortable=True),
+        SimpleField(name="chunk_index", type=SearchFieldDataType.Int32, filterable=True, sortable=True),
         SearchableField(name="title", type=SearchFieldDataType.String, filterable=True, sortable=True),
         SearchableField(name="filepath", type=SearchFieldDataType.String, filterable=True),
         SimpleField(name="page", type=SearchFieldDataType.Int32, filterable=True, sortable=True),
@@ -125,9 +131,10 @@ def table_to_markdown(table) -> str:
         text = (getattr(cell, "content", None) or "").strip()
         r0 = getattr(cell, "row_index", 0) or 0
         c0 = getattr(cell, "column_index", 0) or 0
-        # Normalize spans (they can be None)
-        r_span = getattr(cell, "row_span", 1) or 1
-        c_span = getattr(cell, "column_span", 1) or 1
+
+        # TODO: Normalize spans (they can be None) 
+        # r_span = getattr(cell, "row_span", 1) or 1
+        # c_span = getattr(cell, "column_span", 1) or 1
 
         # Place text at the top-left of the (possibly merged) region
         if 0 <= r0 < rows and 0 <= c0 < cols:
@@ -306,12 +313,22 @@ def upsert_chunks(chunks: List[Dict[str, Any]]):
     eb = config.indexing.embed_batch_size
     ub = config.indexing.upload_batch_size
 
-    docs: List[Dict[str, Any]] = []
-    for i, ch in enumerate(chunks):
+    by_file = defaultdict(list)
+    for ch in chunks:
+        by_file[ch["filepath"]].append(ch)
 
-        # TODO: for now just use uuid
-        doc_id = str(uuid.uuid4())
-        docs.append({"id": doc_id, **ch})
+    docs: List[Dict[str, Any]] = []
+    for filepath, file_chunks in by_file.items():
+        doc_key = _sha1(filepath)
+
+        for idx, ch in enumerate(file_chunks):
+            doc_id = str(uuid.uuid4())
+            docs.append({
+                "id": doc_id,
+                "doc_key": doc_key, # groups chunks from the same doc
+                "chunk_index": idx, # gives us chunk pos in sequence
+                **ch
+            })
 
     # embed in batches
     for i in range(0, len(docs), eb):

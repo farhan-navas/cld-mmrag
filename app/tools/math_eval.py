@@ -1,9 +1,12 @@
-# tools/math_eval.py
 from __future__ import annotations
+
+import logging, time
 import ast
 import operator as op
 from typing import Union
 from tools.models import MathInput, MathOutput
+
+logger = logging.getLogger("tool.math_eval")
 
 Number = Union[int, float]
 
@@ -47,9 +50,16 @@ def _eval(node: ast.AST) -> float:
     raise ValueError(f"Unsupported expression node: {type(node).__name__}")
 
 def math_eval(inp: MathInput) -> MathOutput:
+    logger.info("math_eval start expression=%r", inp.expression)
+
     expr = inp.expression.strip()
     if not expr:
         raise ValueError("Empty expression.")
     tree = ast.parse(expr, mode="eval")
+    
+    t0 = time.perf_counter()
     result = _eval(tree)
+    logger.info("math_eval ok result=%s in %.1f ms", 
+        result, (time.perf_counter()-t0)*1000)
+
     return MathOutput(result=result)
