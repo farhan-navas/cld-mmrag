@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any, Callable
 from openai import AzureOpenAI, AsyncAzureOpenAI
 
 from tools.schema import OPENAI_TOOLS, TOOL_REGISTRY
+from agents.query_rewrite_agent import run_query_rewrite_agent
 
 from config import config
 
@@ -44,19 +45,40 @@ Finish condition (IMPORTANT)
 - Never output extra text after calling `finalize_answer`.
 """
 
-def run_agent(query: str) -> Dict[str, Any]:
+def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
     """
     Core agent loop:
+    0) Optionally rewrite query using query rewrite sub-agent (if multi-turn)
     1) Ask model what to do with tools
     2) Execute any tool calls
     3) Submit tool outputs
     4) Repeat until status=completed
+    
+    Args:
+        query: The user's current query
+        message_history: Optional list of prior conversation messages
     """
-    logger.info("[START] run_agent")
+    logger.info("[START] run_agent query=%r", query)
+    
+    # STEP 0: Query Rewrite (if we have conversation history)
+    optimized_query = query
+    if message_history and len(message_history) > 1:
+        logger.info("[AGENT] Spawning query rewrite sub-agent")
+        rewrite_result = run_query_rewrite_agent(
+            messages=message_history,
+            current_query=query
+        )
+        optimized_query = rewrite_result["rewritten_query"]
+        if rewrite_result["is_changed"]:
+            logger.info("[AGENT] Query rewritten: %r → %r", query, optimized_query)
+        else:
+            logger.info("[AGENT] Query unchanged: %r", query)
+    else:
+        logger.info("[AGENT] Skipping query rewrite - no conversation history")
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": query},
+        {"role": "user", "content": optimized_query},  # Use optimized query
     ]
 
     while True:
@@ -65,7 +87,7 @@ def run_agent(query: str) -> Dict[str, Any]:
             messages=messages,
             tools=OPENAI_TOOLS,
             tool_choice="auto",
-            temperature=0,
+            temperature=0.1,
         )
 
         msg = response.choices[0].message

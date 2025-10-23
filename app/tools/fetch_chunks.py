@@ -89,7 +89,6 @@ def fetch_chunks(inp: FetchInput) -> FetchOutput:
                 select=selected,
                 top=len(indices),
             ))
-            logger.info(f"first result we have is {results[0]}")
 
             for r in results:
                 chunk_id = r["id"]

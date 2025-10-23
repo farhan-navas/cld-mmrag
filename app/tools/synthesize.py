@@ -45,7 +45,7 @@ def synthesize_answer(query: str, chunks: List[Chunk], table_note: Optional[str]
     client = _client()
     resp = client.chat.completions.create(
         model=config.openai.deployment_name,
-        temperature=0.2,
+        temperature=0.1,
         messages=messages,
     )
 

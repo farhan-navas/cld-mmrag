@@ -22,6 +22,7 @@ class TableQASchema(BaseModel):
 class MathSchema(BaseModel):
     expression: str = Field(..., description="A pure math expression to evaluate, e.g. '12*(3+4)%5'.")
 
+
 def _tool_search_docs(args: Dict[str, Any]) -> Dict[str, Any]:
     a = SearchSchema(**args)
     res = search_docs(SearchInput(query=a.query))

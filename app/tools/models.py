@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 
 class SearchInput(BaseModel):
@@ -36,7 +36,6 @@ class TableQAInput(BaseModel):
     markdown: str
     question: str
 
-# Use "explanation" (you used that name in your tool)
 class TableQAOutput(BaseModel):
     short_answer: str
     explanation: Optional[str] = None
@@ -63,5 +62,5 @@ class Citation(BaseModel):
 
 class AskResponse(BaseModel):
     answer: str
-    citations: Optional[List[Citation]] = None
+    citations: Optional[List[Citation]] = Field(..., description="used corpus during the request")
     follow_up: Optional[str] = None

@@ -1,22 +1,35 @@
 import time
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from tools.models import AskResponse
-from agents.main_agent import run_agent  # implement per policy
+from agents.main_agent import run_agent
 
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+
+class Message(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+class AskRequest(BaseModel):
+    query: str
+    message_history: Optional[List[Message]] = None
 
 @app.get("/")
 def read_root():
     return JSONResponse(content={"Hello": "World"}, status_code=200)
 
 @app.post("/ask", response_model=AskResponse)
-def ask(req: str):
+def ask(req: AskRequest):
     t0 = time.time()
-    out = run_agent(req)
+    
+    # Convert Pydantic models to dicts for internal use
+    history = [msg.dict() for msg in req.message_history] if req.message_history else None
+    
+    out = run_agent(req.query, message_history=history)
+    
     print(f"THIS TOOK {time.time() - t0} YEARS TO RUN !!!!!!!!!!!!!!!!!!!!!!!!")
     return AskResponse(**out)
 
