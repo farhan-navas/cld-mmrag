@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import logging, re, time
 
 from azure.core.credentials import AzureKeyCredential
@@ -39,7 +39,14 @@ def search_docs(inp: SearchInput) -> SearchOutput:
     qvec = get_embedding([inp.query])[0]
     logger.debug("embedding[:8]=%s … (len=%d)", qvec[:8], len(qvec))
 
-    # 2) Hybrid search (keyword + vector)
+    # 2) Note: We'll do project filtering in Python after retrieval
+    #    Azure Search OData has limited string matching capabilities
+    project_filter = None
+    if inp.filter:
+        logger.info("Will apply project filter in post-processing: %s", inp.filter)
+        project_filter = inp.filter
+
+    # 3) Hybrid search (keyword + vector) - no filter applied here
     try:
         logger.info("AZSEARCH request query=%r top_k=%d", inp.query, TOP_K)
         results_iter = sc.search(
@@ -53,7 +60,7 @@ def search_docs(inp: SearchInput) -> SearchOutput:
                 )
             ],
             top=TOP_K,
-            select=["id", "title", "page", "section_path", "content"],
+            select=["id", "title", "page", "section_path", "content", "filepath"],
             logging_enable=True,
         )
 
@@ -66,7 +73,17 @@ def search_docs(inp: SearchInput) -> SearchOutput:
         logger.exception("AZSEARCH failed after %.1f ms: %s", dt, e)
         raise
 
-    # 3) Map to your Hit model
+    # 4) Apply project filter if provided (post-processing)
+    if project_filter:
+        filtered_results = []
+        for r in results:
+            filepath = r.get("filepath", "")
+            if filepath.startswith(project_filter):
+                filtered_results.append(r)
+        results = filtered_results
+        logger.info("After project filtering: %d results remain", len(results))
+
+    # 5) Map to your Hit model
     hits: List[Hit] = []
     for r in results:
         hits.append(Hit(

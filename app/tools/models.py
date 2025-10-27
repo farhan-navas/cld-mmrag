@@ -64,3 +64,11 @@ class AskResponse(BaseModel):
     answer: str
     citations: Optional[List[Citation]] = Field(..., description="used corpus during the request")
     follow_up: Optional[str] = None
+
+class ProjectInfo(BaseModel):
+    name: str
+    doc_count: int = 0
+    sample_files: List[str] = []
+
+class ListProjectsOutput(BaseModel):
+    projects: List[ProjectInfo]

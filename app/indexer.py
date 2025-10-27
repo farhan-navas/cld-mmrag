@@ -1,5 +1,5 @@
-import os, uuid, logging
-from typing import List, Dict, Any
+import os, uuid, logging, re
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 from collections import defaultdict
 
@@ -19,7 +19,7 @@ from azure.ai.documentintelligence.models import DocumentContentFormat
 from openai import AzureOpenAI
 from config import config
 
-logger = logging.getLogger("agent")
+logger = logging.getLogger("indexer")
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -232,75 +232,276 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
     return blocks
 
 
+# ---------- Recursive Chunking ----------
+def recursive_split_text(text: str, max_chars: int, separators: Optional[List[str]] = None) -> List[str]:
+    """
+    Recursively split text using a hierarchy of separators.
+    Tries to keep semantic units together as much as possible.
+    
+    Args:
+        text: Text to split
+        max_chars: Maximum characters per chunk
+        separators: List of separators to try in order (most semantic to least)
+    
+    Returns:
+        List of text chunks
+    """
+    if separators is None:
+        # Default hierarchy: paragraph → sentence → clause → word
+        separators = [
+            "\n\n",      # Paragraph breaks
+            "\n",        # Line breaks
+            ". ",        # Sentences
+            "! ",        # Exclamations
+            "? ",        # Questions
+            "; ",        # Clauses
+            ", ",        # Phrases
+            " ",         # Words
+            ""           # Characters (last resort)
+        ]
+    
+    # Base case: text fits in max_chars
+    if len(text) <= max_chars:
+        return [text] if text.strip() else []
+    
+    # Try each separator in order
+    for i, sep in enumerate(separators):
+        if sep == "":
+            # Last resort: split by characters
+            chunks = []
+            for j in range(0, len(text), max_chars):
+                chunks.append(text[j:j + max_chars])
+            return chunks
+        
+        if sep in text:
+            # Split by this separator
+            splits = text.split(sep)
+            
+            # Reconstruct chunks respecting max_chars
+            chunks = []
+            current_chunk = ""
+            
+            for split in splits:
+                # Re-add separator (except for last split)
+                piece = split + sep if split != splits[-1] else split
+                
+                # If this single piece is too large, recurse with next separator
+                if len(piece) > max_chars:
+                    # Flush current chunk first
+                    if current_chunk.strip():
+                        chunks.append(current_chunk.strip())
+                        current_chunk = ""
+                    # Recurse on the large piece
+                    sub_chunks = recursive_split_text(piece, max_chars, separators[i+1:])
+                    chunks.extend(sub_chunks)
+                    continue
+                
+                # If adding this piece would exceed max, flush current chunk
+                if current_chunk and len(current_chunk) + len(piece) > max_chars:
+                    chunks.append(current_chunk.strip())
+                    current_chunk = piece
+                else:
+                    current_chunk += piece
+            
+            # Flush remaining
+            if current_chunk.strip():
+                chunks.append(current_chunk.strip())
+            
+            return chunks
+    
+    # Fallback (should never reach here)
+    return [text]
+
+
+def create_overlap_chunks(chunks: List[str], overlap_chars: int) -> List[str]:
+    """
+    Add overlap between consecutive chunks by prepending part of previous chunk.
+    
+    Args:
+        chunks: List of text chunks
+        overlap_chars: Number of characters to overlap
+    
+    Returns:
+        List of chunks with overlap
+    """
+    if not chunks or overlap_chars <= 0:
+        return chunks
+    
+    overlapped = [chunks[0]]  # First chunk has no overlap
+    
+    for i in range(1, len(chunks)):
+        prev_chunk = chunks[i-1]
+        current_chunk = chunks[i]
+        
+        # Get last N chars from previous chunk
+        if len(prev_chunk) > overlap_chars:
+            overlap_text = prev_chunk[-overlap_chars:]
+            # Try to start at a word boundary
+            space_idx = overlap_text.find(" ")
+            if space_idx > 0:
+                overlap_text = overlap_text[space_idx + 1:]
+            
+            overlapped.append(overlap_text + " [...] " + current_chunk)
+        else:
+            overlapped.append(current_chunk)
+    
+    return overlapped
+
+
 # ---------- Chunking ----------
 def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> List[Dict[str, Any]]:
+    """
+    Chunk blocks using recursive splitting strategy.
+    
+    Strategy:
+    - Headings: Create section boundaries and hierarchy
+    - Tables: Keep as standalone chunks (atomic units)
+    - Paragraphs: Use recursive splitting to maintain semantic coherence
+    """
     max_chars = config.indexing.chunk_max_chars
     overlap = config.indexing.chunk_overlap_chars
 
-    chunks, buf, buf_len, section_path = [], [], 0, []
-
-    def flush():
-        nonlocal buf, buf_len
-        if not buf:
+    chunks = []
+    section_path = []
+    
+    # Group consecutive paragraphs between headings/tables
+    paragraph_buffer = []
+    current_page = 1
+    
+    def flush_paragraphs():
+        """Process accumulated paragraphs with recursive chunking."""
+        nonlocal paragraph_buffer
+        
+        if not paragraph_buffer:
             return
-        text = "\n\n".join(x["text"] for x in buf)
-        md_parts = [x.get("markdown") for x in buf if x.get("markdown")]
-        md = "\n\n".join(md_parts) if md_parts else None
-        page = buf[0]["page"]
-        chunks.append({
-            "title": title,
-            "filepath": filepath,
-            "page": page,
-            "section_path": " > ".join(section_path[-3:]),
-            "content": text,
-            "content_markdown": md,
-            "bbox": None
-        })
-        # overlap
+        
+        # Combine paragraphs with double newlines
+        combined_text = "\n\n".join(p["text"] for p in paragraph_buffer)
+        
+        # Use recursive splitting
+        text_chunks = recursive_split_text(combined_text, max_chars)
+        
+        # Add overlap between chunks
         if overlap > 0:
-            keep, running = [], 0
-            for b in reversed(buf):
-                running += len(b["text"]) + 2
-                keep.append(b)
-                if running >= overlap:
-                    break
-            buf = list(reversed(keep))
-            buf_len = sum(len(b["text"]) + 2 for b in buf)
-        else:
-            buf, buf_len = [], 0
-
-    for b in blocks:
-        t = b["type"]
-        txt = (b.get("text") or "").strip()
-        if not txt:
+            text_chunks = create_overlap_chunks(text_chunks, overlap)
+        
+        # Create chunk records
+        page = paragraph_buffer[0]["page"]
+        for chunk_text in text_chunks:
+            if chunk_text.strip():
+                chunks.append({
+                    "title": title,
+                    "filepath": filepath,
+                    "page": page,
+                    "section_path": " > ".join(section_path[-3:]),
+                    "content": chunk_text,
+                    "content_markdown": chunk_text,  # Already in markdown from DI
+                    "bbox": None
+                })
+        
+        paragraph_buffer = []
+    
+    # Process blocks
+    for block in blocks:
+        block_type = block["type"]
+        text = (block.get("text") or "").strip()
+        
+        if not text:
             continue
-
-        if t == "heading":
-            flush()
-            section_path.append(txt[:120])
+        
+        current_page = block.get("page", current_page)
+        
+        if block_type == "heading":
+            # Flush any pending paragraphs
+            flush_paragraphs()
+            
+            # Update section hierarchy
+            section_path.append(text[:120])
             if len(section_path) > 8:
                 section_path = section_path[-8:]
+            
             continue
-
-        if t == "table":
-            flush()
-            chunks.append({
-                "title": title,
-                "filepath": filepath,
-                "page": b["page"],
-                "section_path": " > ".join(section_path[-3:]),
-                "content": txt,
-                "content_markdown": b.get("markdown"),
-                "bbox": b.get("bbox")
-            })
+        
+        elif block_type == "table":
+            # Flush pending paragraphs first
+            flush_paragraphs()
+            
+            # Tables are kept as standalone chunks
+            table_text = text
+            table_md = block.get("markdown", text)
+            
+            # If table is too large, split it by rows
+            if len(table_text) > max_chars:
+                # Try to split table by rows (each row on its own line)
+                table_rows = table_text.split("\n")
+                
+                # Keep header and separator
+                if len(table_rows) >= 3:
+                    header = "\n".join(table_rows[:2])  # Header + separator
+                    
+                    current_table = header
+                    for row in table_rows[2:]:
+                        if len(current_table) + len(row) + 1 > max_chars:
+                            # Flush current table chunk
+                            chunks.append({
+                                "title": title,
+                                "filepath": filepath,
+                                "page": block["page"],
+                                "section_path": " > ".join(section_path[-3:]),
+                                "content": current_table,
+                                "content_markdown": current_table,
+                                "bbox": block.get("bbox")
+                            })
+                            # Start new table chunk with header
+                            current_table = header + "\n" + row
+                        else:
+                            current_table += "\n" + row
+                    
+                    # Flush remaining
+                    if current_table != header:
+                        chunks.append({
+                            "title": title,
+                            "filepath": filepath,
+                            "page": block["page"],
+                            "section_path": " > ".join(section_path[-3:]),
+                            "content": current_table,
+                            "content_markdown": current_table,
+                            "bbox": block.get("bbox")
+                        })
+                else:
+                    # Can't split intelligently, just truncate or split by chars
+                    table_chunks = recursive_split_text(table_text, max_chars)
+                    for tc in table_chunks:
+                        chunks.append({
+                            "title": title,
+                            "filepath": filepath,
+                            "page": block["page"],
+                            "section_path": " > ".join(section_path[-3:]),
+                            "content": tc,
+                            "content_markdown": tc,
+                            "bbox": block.get("bbox")
+                        })
+            else:
+                # Table fits in one chunk
+                chunks.append({
+                    "title": title,
+                    "filepath": filepath,
+                    "page": block["page"],
+                    "section_path": " > ".join(section_path[-3:]),
+                    "content": table_text,
+                    "content_markdown": table_md,
+                    "bbox": block.get("bbox")
+                })
+            
             continue
-
-        if buf_len + len(txt) + 2 > max_chars:
-            flush()
-        buf.append(b)
-        buf_len += len(txt) + 2
-
-    flush()
+        
+        elif block_type == "paragraph":
+            # Accumulate paragraphs for recursive chunking
+            paragraph_buffer.append(block)
+    
+    # Flush any remaining paragraphs
+    flush_paragraphs()
+    
     return chunks
 
 # ---------- Upsert ----------
@@ -368,7 +569,12 @@ def main():
             if len(blocks) < 1:
                 print("  ! No blocks extracted (DI may have returned empty). Skipping.")
                 continue
-            chunks = chunk_blocks(blocks, title=path.stem, filepath=str(path.resolve()))
+            
+            # Store relative path from data/preprocessed
+            relative_path = str(path.relative_to(DATA_DIR))
+            filepath_str = f"data/preprocessed/{relative_path}"
+            
+            chunks = chunk_blocks(blocks, title=path.stem, filepath=filepath_str)
             print(f"  - chunks: {len(chunks)}")
             if not chunks:
                 print("  ! No chunks produced. Skipping.")

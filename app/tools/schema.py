@@ -1,16 +1,18 @@
 from typing import List, Dict, Any, Optional, Callable
 from pydantic import BaseModel, Field
 
-from tools.models import SearchInput, SearchOutput, Chunk, Hit, FetchInput, FetchOutput, TableQAInput, TableQAOutput, MathInput, MathOutput
+from tools.models import SearchInput, SearchOutput, Chunk, Hit, FetchInput, FetchOutput, TableQAInput, TableQAOutput, MathInput, MathOutput, ListProjectsOutput, ProjectInfo
 from tools.search_docs import search_docs
 from tools.fetch_chunks import fetch_chunks
 from tools.table_qa import table_qa
 from tools.math_eval import math_eval
+from tools.list_projects import list_projects
 
 # TOOL FUNCTION OUTPUT SCHEMA
 class SearchSchema(BaseModel):
     query: str = Field(..., description="Search query string.")
     top_k: int = Field(8, ge=1, le=50, description="Max results to retrieve.")
+    project_name: Optional[str] = Field(None, description="Filter by specific project name (e.g., '25.PDDM Resource' or '02. Quality Procedures and Document Masterlist'). Leave empty to search all projects.")
 
 class FetchSchema(BaseModel):
     ids: List[str] = Field(..., description="Document or chunk IDs to fetch.")
@@ -25,7 +27,14 @@ class MathSchema(BaseModel):
 
 def _tool_search_docs(args: Dict[str, Any]) -> Dict[str, Any]:
     a = SearchSchema(**args)
-    res = search_docs(SearchInput(query=a.query))
+    
+    # Build filepath prefix for filtering
+    filter_expr = None
+    if a.project_name:
+        # Create filepath prefix to match against
+        filter_expr = f"data/preprocessed/{a.project_name}/"
+    
+    res = search_docs(SearchInput(query=a.query, filter=filter_expr))
     out = SearchOutput(
         hits=[
             Hit(
@@ -73,11 +82,17 @@ def _tool_math_eval(args: Dict[str, Any]) -> Dict[str, Any]:
     out = MathOutput(result=res.result)
     return out.model_dump()
 
+def _tool_list_projects(args: Dict[str, Any]) -> Dict[str, Any]:
+    """List all available projects in the corpus."""
+    res = list_projects()
+    return res.model_dump()
+
 TOOL_REGISTRY: Dict[str, Callable[[Dict[str, Any]], Dict[str, Any]]] = {
     "search_docs": _tool_search_docs,
     "fetch_chunks": _tool_fetch_chunks,
     "table_qa": _tool_table_qa,
     "math_eval": _tool_math_eval,
+    "list_projects": _tool_list_projects,
 }
 
 OPENAI_TOOLS = [
@@ -85,7 +100,7 @@ OPENAI_TOOLS = [
         "type": "function",
         "function": {
             "name": "search_docs",
-            "description": "Retrieve top-K relevant items for a query from the indexed corpus.",
+            "description": "Retrieve top-K relevant items for a query from the indexed corpus. Use 'project_name' parameter to filter results to a specific project (e.g., '25.PDDM Resource').",
             "parameters": SearchSchema.model_json_schema(),
         },
     },
@@ -111,6 +126,18 @@ OPENAI_TOOLS = [
             "name": "math_eval",
             "description": "Safely evaluate a pure math expression.",
             "parameters": MathSchema.model_json_schema(),
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_projects",
+            "description": "List all available projects in the document corpus. Use this to validate project names or show users what projects are available before searching.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            },
         },
     },
     {

@@ -26,7 +26,7 @@ def ask(req: AskRequest):
     t0 = time.time()
     
     # Convert Pydantic models to dicts for internal use
-    history = [msg.dict() for msg in req.message_history] if req.message_history else None
+    history = [msg.model_dump() for msg in req.message_history] if req.message_history else None
     
     out = run_agent(req.query, message_history=history)
     
