@@ -1,4 +1,4 @@
-import os, uuid, logging, re
+import os, uuid, logging, re, hashlib
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from collections import defaultdict
@@ -52,7 +52,7 @@ def aoai_client():
         azure_endpoint=config.openai.endpoint,
     )
 
-# Embeddings 
+# ---------- Embeddings ---------- 
 def get_embedding(texts: List[str]) -> List[List[float]]:
     logger.info("[START] embedding")
     client = aoai_client()
@@ -66,7 +66,7 @@ def get_embedding(texts: List[str]) -> List[List[float]]:
 def embedding_dimension() -> int:
     return len(get_embedding(["dim probe"])[0])
 
-# Index creation 
+# ---------- Index Creation ---------- 
 def ensure_index():
     sic = search_index_client()
     idx_name = config.ai_search.index_name
@@ -81,7 +81,7 @@ def ensure_index():
 
     hnsw = HnswAlgorithmConfiguration(
         name="hnsw",
-        parameters=HnswParameters(m=4, ef_construction=400, ef_search=100)
+        parameters=HnswParameters(m=16, ef_construction=400, ef_search=100)
     )
     vs = VectorSearch(
         algorithms=[hnsw],
@@ -139,7 +139,6 @@ def table_to_markdown(table) -> str:
         # Place text at the top-left of the (possibly merged) region
         if 0 <= r0 < rows and 0 <= c0 < cols:
             grid[r0][c0] = text
-        # (Optional) You could also fill the spanned area or add markers.
 
     # Render Markdown (simple rule after header row)
     lines = []
@@ -150,6 +149,18 @@ def table_to_markdown(table) -> str:
             lines.append("| " + " | ".join("---" for _ in row) + " |")
     return "\n".join(lines)
 
+# UTIL
+def slice_markdown_from_spans(result, spans):
+    if not spans: return ""
+    parts = []
+    for s in sorted(spans, key=lambda s: (getattr(s, "offset", 0) or 0)):
+        off = getattr(s, "offset", None)
+        ln  = getattr(s, "length", None)
+        if isinstance(off, int) and isinstance(ln, int) and off >= 0 and ln > 0:
+            parts.append(result.content[off:off+ln])
+    return "".join(parts).strip()
+
+# ---------- Document Intelligence Extraction ----------
 def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
     cli = di_client()
     ct_map = {
@@ -195,17 +206,9 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
     has_doc_markdown = bool(getattr(result, "content", None))
     for table in (getattr(result, "tables", None) or []):
         page = table.bounding_regions[0].page_number if getattr(table, "bounding_regions", None) else 1
-        md = ""
 
-        if has_doc_markdown and getattr(table, "spans", None):
-            # Guard spans: offset/length might be None on rare docs
-            parts = []
-            for s in table.spans:
-                off = getattr(s, "offset", None)
-                ln  = getattr(s, "length", None)
-                if isinstance(off, int) and isinstance(ln, int) and ln > 0:
-                    parts.append(result.content[off:off+ln])
-            md = "".join(parts).strip()
+        # Try extracting exactly what DI marked as the table using spans
+        md = slice_markdown_from_spans(result, getattr(table, "spans", None)) if has_doc_markdown else ""
 
         if not md:
             # Fallback to robust cell-based markdown
@@ -214,6 +217,33 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
         if md.strip():
             blocks.append({
                 "type": "table",
+                "text": md,
+                "markdown": md,
+                "page": page,
+                "bbox": None
+            })
+
+    # after paragraphs/tables sections
+    # Figures
+    for fig in (getattr(result, "figures", None) or []):
+        page = fig.bounding_regions[0].page_number if getattr(fig, "bounding_regions", None) else 1
+        md = slice_markdown_from_spans(result, getattr(fig, "spans", None)) or (getattr(fig, "caption", None) or "").strip()
+        if md:
+            blocks.append({
+                "type": "figure",
+                "text": md,
+                "markdown": md,
+                "page": page,
+                "bbox": None
+            })
+
+    # Formulas (math)
+    for fm in (getattr(result, "formulas", None) or []):
+        page = fm.bounding_regions[0].page_number if getattr(fm, "bounding_regions", None) else 1
+        md = slice_markdown_from_spans(result, getattr(fm, "spans", None)) or (getattr(fm, "value", None) or "").strip()
+        if md:
+            blocks.append({
+                "type": "formula",
                 "text": md,
                 "markdown": md,
                 "page": page,
@@ -234,18 +264,6 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
 
 # ---------- Recursive Chunking ----------
 def recursive_split_text(text: str, max_chars: int, separators: Optional[List[str]] = None) -> List[str]:
-    """
-    Recursively split text using a hierarchy of separators.
-    Tries to keep semantic units together as much as possible.
-    
-    Args:
-        text: Text to split
-        max_chars: Maximum characters per chunk
-        separators: List of separators to try in order (most semantic to least)
-    
-    Returns:
-        List of text chunks
-    """
     if separators is None:
         # Default hierarchy: paragraph → sentence → clause → word
         separators = [
@@ -312,43 +330,70 @@ def recursive_split_text(text: str, max_chars: int, separators: Optional[List[st
     # Fallback (should never reach here)
     return [text]
 
-
 def create_overlap_chunks(chunks: List[str], overlap_chars: int) -> List[str]:
-    """
-    Add overlap between consecutive chunks by prepending part of previous chunk.
-    
-    Args:
-        chunks: List of text chunks
-        overlap_chars: Number of characters to overlap
-    
-    Returns:
-        List of chunks with overlap
-    """
     if not chunks or overlap_chars <= 0:
         return chunks
-    
-    overlapped = [chunks[0]]  # First chunk has no overlap
-    
+
+    out = [chunks[0]]
     for i in range(1, len(chunks)):
-        prev_chunk = chunks[i-1]
-        current_chunk = chunks[i]
-        
-        # Get last N chars from previous chunk
-        if len(prev_chunk) > overlap_chars:
-            overlap_text = prev_chunk[-overlap_chars:]
-            # Try to start at a word boundary
-            space_idx = overlap_text.find(" ")
-            if space_idx > 0:
-                overlap_text = overlap_text[space_idx + 1:]
-            
-            overlapped.append(overlap_text + " [...] " + current_chunk)
-        else:
-            overlapped.append(current_chunk)
-    
-    return overlapped
+        prev_chunk, curr = chunks[i-1], chunks[i]
+        overlap = prev_chunk[-overlap_chars:] if len(prev_chunk) > overlap_chars else prev_chunk
 
+        # Start at a word boundary near the end of the overlap block
+        # (prefer the last whitespace so we carry full words)
+        cut = max(overlap.rfind(" "), 0)
+        overlap = overlap[cut:].lstrip()
 
-# ---------- Chunking ----------
+        # Ensure final length ≤ max_chars
+        max_len = config.indexing.chunk_max_chars
+        room = max_len - len(curr) - len(" [...] ")  # marker cost
+        if room < 0:
+            # curr itself is already at/over limit; keep it as-is
+            out.append(curr)
+            continue
+        if len(overlap) > room:
+            overlap = overlap[-room:]  # trim from the left
+
+        out.append((overlap + " [...] " + curr) if overlap else curr)
+    return out
+
+def split_fenced_code_blocks(blocks):
+    FENCE_RE = re.compile(
+        r"(?P<fence>```|~~~)(?P<lang>[^\n]*)\n(?P<body>.*?)(?:\n(?P=fence))",
+        re.DOTALL
+    )
+
+    out = []
+    for b in blocks:
+        if b.get("type") != "paragraph":
+            out.append(b)
+            continue
+
+        text = b.get("text") or ""
+        pos = 0
+        for m in FENCE_RE.finditer(text):
+            start, end = m.span()
+            # preface text before fence -> paragraph
+            pre = text[pos:start].strip()
+            if pre:
+                out.append({**b, "text": pre, "markdown": pre, "type": "paragraph"})
+            # fenced code -> codeblock
+            code_lang = (m.group("lang") or "").strip()
+            code_body = m.group("body")
+            code_md = f"```{code_lang}\n{code_body}\n```"
+            out.append({
+                **b,
+                "type": "codeblock",
+                "text": code_md,
+                "markdown": code_md,
+            })
+            pos = end
+        # tail after last fence
+        tail = text[pos:].strip()
+        if tail:
+            out.append({**b, "text": tail, "markdown": tail, "type": "paragraph"})
+    return out
+
 def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> List[Dict[str, Any]]:
     """
     Chunk blocks using recursive splitting strategy.
@@ -371,21 +416,28 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
     def flush_paragraphs():
         """Process accumulated paragraphs with recursive chunking."""
         nonlocal paragraph_buffer
-        
+
         if not paragraph_buffer:
             return
-        
+
         # Combine paragraphs with double newlines
         combined_text = "\n\n".join(p["text"] for p in paragraph_buffer)
-        
-        # Use recursive splitting
+
+        # (Optional future: collect precise offsets here if you want stable IDs)
+        # offsets = []
+        # acc = 0
+        # for p in paragraph_buffer:
+        #     offsets.append(acc)
+        #     acc += len(p["text"]) + 2  # +2 for the "\n\n" join heuristic
+
+        # Use recursive splitting once
         text_chunks = recursive_split_text(combined_text, max_chars)
-        
-        # Add overlap between chunks
+
+        # Add overlap between chunks (only for paragraphs)
         if overlap > 0:
             text_chunks = create_overlap_chunks(text_chunks, overlap)
-        
-        # Create chunk records
+
+        # Create chunk records; use the page of the first paragraph in the buffer
         page = paragraph_buffer[0]["page"]
         for chunk_text in text_chunks:
             if chunk_text.strip():
@@ -395,10 +447,10 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
                     "page": page,
                     "section_path": " > ".join(section_path[-3:]),
                     "content": chunk_text,
-                    "content_markdown": chunk_text,  # Already in markdown from DI
+                    "content_markdown": chunk_text,  # already Markdown
                     "bbox": None
                 })
-        
+
         paragraph_buffer = []
     
     # Process blocks
@@ -410,7 +462,6 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
             continue
         
         current_page = block.get("page", current_page)
-        
         if block_type == "heading":
             # Flush any pending paragraphs
             flush_paragraphs()
@@ -495,9 +546,47 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
             
             continue
         
+        elif block_type in ("codeblock", "figure", "formula"):
+            # Keep these atomic like tables; no semantic overlap.
+            flush_paragraphs()
+
+            body = text  # already markdown from DI / splitter
+            if len(body) > max_chars:
+                # Rare, but split safely if huge (e.g., very large code blocks or long captions)
+                for tc in recursive_split_text(body, max_chars):
+                    chunks.append({
+                        "title": title,
+                        "filepath": filepath,
+                        "page": block.get("page", current_page),
+                        "section_path": " > ".join(section_path[-3:]),
+                        "content": tc,
+                        "content_markdown": tc,
+                        "bbox": block.get("bbox")
+                    })
+            else:
+                chunks.append({
+                    "title": title,
+                    "filepath": filepath,
+                    "page": block.get("page", current_page),
+                    "section_path": " > ".join(section_path[-3:]),
+                    "content": body,
+                    "content_markdown": body,
+                    "bbox": block.get("bbox")
+                })
+            continue
+
         elif block_type == "paragraph":
-            # Accumulate paragraphs for recursive chunking
-            paragraph_buffer.append(block)
+            # Determine the page for this block
+            new_page = block.get("page", current_page)
+
+            # If the buffer exists and this paragraph is on a new page, flush first
+            if paragraph_buffer and new_page != paragraph_buffer[-1].get("page"):
+                flush_paragraphs()
+
+            # Accumulate paragraph with its page
+            paragraph_buffer.append({**block, "page": new_page})
+            current_page = new_page
+            continue
     
     # Flush any remaining paragraphs
     flush_paragraphs()
@@ -506,8 +595,10 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
 
 # ---------- Upsert ----------
 def _sha1(s: str) -> str:
-    import hashlib
     return hashlib.sha1(s.encode("utf-8")).hexdigest()
+
+def _stable_id(filepath: str, content: str) -> str:
+    return hashlib.sha1((filepath + "\n" + content).encode("utf-8")).hexdigest()
 
 def upsert_chunks(chunks: List[Dict[str, Any]]):
     sc = search_client()
@@ -523,7 +614,7 @@ def upsert_chunks(chunks: List[Dict[str, Any]]):
         doc_key = _sha1(filepath)
 
         for idx, ch in enumerate(file_chunks):
-            doc_id = str(uuid.uuid4())
+            doc_id = _stable_id(filepath, ch["content"])
             docs.append({
                 "id": doc_id,
                 "doc_key": doc_key, # groups chunks from the same doc
@@ -574,6 +665,7 @@ def main():
             relative_path = str(path.relative_to(DATA_DIR))
             filepath_str = f"data/preprocessed/{relative_path}"
             
+            blocks = split_fenced_code_blocks(blocks)
             chunks = chunk_blocks(blocks, title=path.stem, filepath=filepath_str)
             print(f"  - chunks: {len(chunks)}")
             if not chunks:
