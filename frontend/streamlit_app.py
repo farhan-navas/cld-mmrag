@@ -150,11 +150,3 @@ if prompt := st.chat_input("Ask a question about a project..."):
                     "role": "assistant",
                     "content": error_msg
                 })
-
-# Footer
-st.divider()
-st.markdown("""
-<div style='text-align: center; color: #666; font-size: 0.8em;'>
-    CapitaLand Project Assistant | Powered by Azure OpenAI & AI Search
-</div>
-""", unsafe_allow_html=True)
