@@ -129,7 +129,6 @@ class ModelConfig:
 
 @dataclass
 class SystemConfig:
-    """System-wide configuration."""
     temp_dir: str = "./temp"
     patch_matrix_dir: str = "./patch_matrices"
     manifest_dir: str = "./manifests"
@@ -144,6 +143,13 @@ class IndexingConfig:
     upload_batch_size: int = 500
     include_tables: bool = True
     supported_exts: tuple[str, ...] = (".pdf", ".docx", ".pptx", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+
+@dataclass
+class SharePointConfig:
+    ms_graph_api_endpoint: str
+    credentials_url: str = ""  
+    credentials_data: str = ""  
+    faq_filename: str = "" # Optional
 
 class Config:
     """Central configuration manager."""
@@ -165,6 +171,13 @@ class Config:
         )
 
         self.indexing = IndexingConfig()
+
+        self.sharepoint = SharePointConfig(
+            ms_graph_api_endpoint=os.getenv("MS_GRAPH_API_ENDPOINT", ""),
+            credentials_url=os.getenv("CREDENTIALS_URL", ""),
+            credentials_data=os.getenv("CREDENTIALS_DATA", ""),
+            faq_filename=os.getenv("FAQ_FILENAME", "")
+        )
 
         model_choice_env = os.getenv("MODEL_CHOICE", "florence2")
         model_choice: Literal["florence2", "phi3-vision"] = (

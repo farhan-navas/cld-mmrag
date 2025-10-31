@@ -3,51 +3,19 @@ import subprocess
 import sys
 import time
 import pandas as pd
-import traceback
 
-try:
-    # Check if running in a Databricks notebook
-    if 'dbutils' in globals():
-        # Get the current notebook path
-        notebook_path = dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()
-        # Get the directory of the current notebook
-        repo_path = "/Workspace" + notebook_path.rsplit('/', 1)[0]
-        sys.path.append(repo_path)
-        print(f"REPO_PATH: {repo_path}")
-        databricks = True
-        # Define the relative path to the requirements.txt file
-        requirement_file = "requirements.txt"
-        # Concatenate the notebook directory with the relative path
-        requirements_path = f"{repo_path}/{requirement_file}"
-        print(f"Requirements path: {requirements_path}")
-        print(f"Installing requirements using %pip magic command from {requirements_path}")
-        #dbutils.notebook.run(f"%pip install -r {requirements_path}", timeout_seconds=60)
-        #%pip install -r {requirements_path}
-        subprocess.run(["pip", "install", "-r", requirements_path], check=True)
-        
-        print(f"Successfully installed requirements from {requirements_path}")
-        command = "sudo rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* && sudo apt-get clean && sudo apt-get update && sudo apt-get install poppler-utils tesseract-ocr -y" 
-        subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-        dbutils.library.restartPython()
-        
-    else:
-        repo_path = os.getcwd()
-        databricks = False
-        print(f"Using fallback path: {repo_path}")
-        print("Not running in a Databricks environment")
-
-except Exception as e:
-    print(e)
-    repo_path  = os.getcwd()
-    databricks = False
+repo_path = os.getcwd()
+databricks = False
+print(f"Using fallback path: {repo_path}")
+print("Not running in a Databricks environment")
 
 from config import config
+from ingestion.change_index import initialise_client, delete_record, embedd_df, upload_record
 from src.table_helper import upload_df_to_all_tables, upload_df_to_table, retrieve_table_to_df, check_table_exists, create_table,delete_rows_in_table
 from src.blob_helper import upload_file_data_to_blob
 from process_data_for_index import create_whole_index_data, create_diff_index_data
 from src.compare_differences import compare_data, compare_mapping_table
 from src.create_delete_index import check_index_exist, delete_index, create_your_index_ENV
-from src.change_index import initialise_client, delete_record, embedd_df, upload_record
 from src.generate_mapping_table import create_mapping_table, get_sharepoint_files
 from src.combine_previous_current_chunk_tables import combine_tables
 from get_terminologies_data import get_terminologies_to_blob
@@ -61,7 +29,7 @@ def ingestion_load(config):
     logger = config.logger
     ENV=config.ENV
     ENV = os.environ.get("ENV")
-    logger.info("Running in "+ENV+" ENV")
+    logger.info("Running in " + ENV + " ENV")
     cert_path = config.REQUESTS_CA_BUNDLE
     logger.info("CERT PATH :"+cert_path)
     embeddings_column_dict = {'content' : 'content_vector'} ## if langchain use this.
