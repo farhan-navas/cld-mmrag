@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 from openai import AzureOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-from config import config
+from app.config import config
 
 logger = logging.getLogger("agent.query_rewrite")
 

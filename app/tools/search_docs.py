@@ -5,9 +5,9 @@ from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizedQuery
 
-from config import config
-from tools.models import SearchInput, SearchOutput, Hit
-from indexer import get_embedding
+from app.config import config
+from app.tools.models import SearchInput, SearchOutput, Hit
+from app.indexer import get_embedding
 
 logger = logging.getLogger("tool.search_docs")
 

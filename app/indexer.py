@@ -17,7 +17,7 @@ from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import DocumentContentFormat
 
 from openai import AzureOpenAI
-from config import config
+from app.config import config
 
 logger = logging.getLogger("indexer")
 

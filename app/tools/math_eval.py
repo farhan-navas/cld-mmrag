@@ -4,7 +4,7 @@ import logging, time
 import ast
 import operator as op
 from typing import Union
-from tools.models import MathInput, MathOutput
+from app.tools.models import MathInput, MathOutput
 
 logger = logging.getLogger("tool.math_eval")
 

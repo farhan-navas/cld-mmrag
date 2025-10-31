@@ -8,8 +8,8 @@ from typing import List, Optional
 from openai import AzureOpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-from config import config
-from tools.models import Chunk
+from app.config import config
+from app.tools.models import Chunk
 
 logger = logging.getLogger("tool.synthesize_answers")
 

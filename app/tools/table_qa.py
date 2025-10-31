@@ -1,7 +1,7 @@
 import logging, re
 
 import pandas as pd
-from tools.models import TableQAInput, TableQAOutput
+from app.tools.models import TableQAInput, TableQAOutput
 
 logger = logging.getLogger("tool.table_qa")
 

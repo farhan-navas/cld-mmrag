@@ -4,8 +4,8 @@ import logging
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 
-from config import config
-from tools.models import ListProjectsOutput, ProjectInfo
+from app.config import config
+from app.tools.models import ListProjectsOutput, ProjectInfo
 
 logger = logging.getLogger("tool.list_projects")
 
@@ -17,13 +17,6 @@ def _search_client() -> SearchClient:
     )
 
 def list_projects() -> ListProjectsOutput:
-    """
-    List all unique projects in the corpus by extracting project names from filepaths.
-    Filepath format: data/preprocessed/{project_name}/{documents}
-    
-    Returns:
-        ListProjectsOutput with list of available projects
-    """
     sc = _search_client()
     
     try:

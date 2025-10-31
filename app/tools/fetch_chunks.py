@@ -6,8 +6,8 @@ from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import ResourceNotFoundError
 from azure.search.documents import SearchClient
 
-from config import config
-from tools.models import FetchInput, FetchOutput, Chunk
+from app.config import config
+from app.tools.models import FetchInput, FetchOutput, Chunk
 
 logger = logging.getLogger("tool.fetch_chunks")
 

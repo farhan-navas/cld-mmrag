@@ -2,10 +2,10 @@ import logging, json
 from typing import List, Optional, Dict, Any, Callable
 from openai import AzureOpenAI, AsyncAzureOpenAI
 
-from tools.schema import OPENAI_TOOLS, TOOL_REGISTRY
-from agents.query_rewrite_agent import run_query_rewrite_agent
+from app.tools.schema import OPENAI_TOOLS, TOOL_REGISTRY
+from app.agents.query_rewrite_agent import run_query_rewrite_agent
 
-from config import config
+from app.config import config
 
 logger = logging.getLogger("agent")
 

@@ -2,8 +2,8 @@ import time
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional
-from tools.models import AskResponse
-from agents.main_agent import run_agent
+from app.tools.models import AskResponse
+from app.agents.main_agent import run_agent
 
 from fastapi.responses import JSONResponse
 
