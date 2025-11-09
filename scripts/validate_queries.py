@@ -5,7 +5,6 @@ import time
 import requests
 from pathlib import Path
 from typing import List, Dict, Any
-from datetime import datetime
 
 API_URL = "http://localhost:8000/ask"
 QUERY_FILE = Path("data/validation/query-list.json")

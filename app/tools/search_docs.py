@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 import logging, re, time
 
 from azure.core.credentials import AzureKeyCredential
@@ -7,7 +7,7 @@ from azure.search.documents.models import VectorizedQuery
 
 from app.config import config
 from app.tools.models import SearchInput, SearchOutput, Hit
-from app.indexer import get_embedding
+from app.ingestion.indexer import get_embedding
 
 logger = logging.getLogger("tool.search_docs")
 

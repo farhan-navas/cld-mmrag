@@ -49,7 +49,7 @@ def table_qa(inp: TableQAInput) -> TableQAOutput:
     logger.debug("table parsed rows=%d cols=%d", len(df), len(df.columns))
     if df.empty:
         logger.info("table_qa empty_table")
-        return TableQAOutput(short_answer="I couldn’t parse the table.", analysis="No rows/cols parsed.")
+        return TableQAOutput(short_answer="I couldn’t parse the table.", explanation="No rows/cols parsed.")
 
     q = inp.question.lower()
 
@@ -72,7 +72,7 @@ def table_qa(inp: TableQAInput) -> TableQAOutput:
             logger.info("table_qa aggregate op=%s col=%s rows=%d", op, col, len(df))
             return TableQAOutput(
                 short_answer=f"{op} of {col}: {val:.4g}",
-                analysis=f"Computed {op} over column '{col}' on {len(df)} rows."
+                explanation=f"Computed {op} over column '{col}' on {len(df)} rows."
             )
 
     # filter by equality: column=value
@@ -86,12 +86,12 @@ def table_qa(inp: TableQAInput) -> TableQAOutput:
             logger.info("table_qa filter_eq col=%s val=%r matched_rows=%d", col, val, len(out))
             return TableQAOutput(
                 short_answer=f"{len(out)} matching rows (showing up to 5).",
-                analysis=f"Rows: {head}"
+                explanation=f"Rows: {head}"
             )
 
     # fallback: describe table
     logger.info("table_qa fallback columns=%s rows=%d", list(df.columns), len(df))
     return TableQAOutput(
         short_answer="I can summarize or compute aggregates if you specify a column.",
-        analysis=f"Columns: {list(df.columns)} | Rows: {len(df)}"
+        explanation=f"Columns: {list(df.columns)} | Rows: {len(df)}"
     )
