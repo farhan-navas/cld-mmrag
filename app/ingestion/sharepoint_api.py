@@ -92,46 +92,46 @@ def create_mapping_table(folder_path: str, config) -> pd.DataFrame:
     :param config: Configuration object with sharepoint.faq_filename
     :return: DataFrame with columns: Filename, Url, LastModified, DownloadUrl, FolderPath
     """
-    faq_filename = config.sharepoint.faq_filename
+    # Use an exclusion-based approach: include all files except those with
+    # explicitly excluded mimetypes (e.g., archives). The config may provide
+    # `config.sharepoint.excluded_mimetypes` as an iterable; otherwise we
+    # default to a conservative set of archive/compressed types.
+    excluded = getattr(config.sharepoint, "excluded_mimetypes", None)
+    if excluded is None:
+        excluded_file_mimetypes = [
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/x-rar-compressed',
+            'application/vnd.rar',
+            'application/x-7z-compressed',
+            'application/gzip',
+            'application/x-tar',
+        ]
+    else:
+        excluded_file_mimetypes = list(excluded)
+
     documents = get_sharepoint_files(folder_path, config)
-    
-    # Only accept PDF and Excel files
-    required_file_mimetypes = [
-        'application/pdf',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ]
-    
     mapping_table_data = []
-    
+
     for f in documents:
         if 'file' in list(f.keys()):
             mimetype = f.get('file', {}).get('mimeType')
-            
-            if mimetype in required_file_mimetypes:
-                # Special handling for Excel files - only accept FAQ file
-                if mimetype == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-                    if faq_filename and faq_filename in f.get('name'):
-                        f_dict = {
-                            'Filename': f.get('name'),
-                            'Url': f.get('webUrl'),
-                            'LastModified': f.get('lastModifiedDateTime'),
-                            'DownloadUrl': f.get('@microsoft.graph.downloadUrl'),
-                            'FolderPath': f.get('folder_path')
-                        }
-                        mapping_table_data.append(f_dict)
-                    else:
-                        logger.debug(f"Excel file {f.get('name')} is different from config faq_filename {faq_filename}. Skipping")
-                else:
-                    # PDF or other accepted file types
-                    f_dict = {
-                        'Filename': f.get('name'),
-                        'Url': f.get('webUrl'),
-                        'LastModified': f.get('lastModifiedDateTime'),
-                        'DownloadUrl': f.get('@microsoft.graph.downloadUrl'),
-                        'FolderPath': f.get('folder_path')
-                    }
-                    mapping_table_data.append(f_dict)
-    
+
+            # Skip explicitly excluded mimetypes
+            if mimetype and mimetype in excluded_file_mimetypes:
+                logger.debug(f"Excluded by mimetype: skipping file {f.get('name')} (mimeType={mimetype})")
+                continue
+
+            # Include otherwise
+            f_dict = {
+                'Filename': f.get('name'),
+                'Url': f.get('webUrl'),
+                'LastModified': f.get('lastModifiedDateTime'),
+                'DownloadUrl': f.get('@microsoft.graph.downloadUrl'),
+                'FolderPath': f.get('folder_path')
+            }
+            mapping_table_data.append(f_dict)
+
     return pd.DataFrame(mapping_table_data)
 
 

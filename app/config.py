@@ -1,9 +1,3 @@
-"""
-Configuration module for MS-Native Late Interaction RAG system.
-
-Contains all Azure service configurations, model choices, and system settings.
-"""
-
 import os
 import logging
 import logging.config
@@ -13,9 +7,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ----------------------------
-# Logging configuration
-# ----------------------------
 def _ensure_logs_dir(path: str):
     d = os.path.dirname(path) or "."
     os.makedirs(d, exist_ok=True)
@@ -142,7 +133,11 @@ class IndexingConfig:
     embed_batch_size: int = 64
     upload_batch_size: int = 500
     include_tables: bool = True
-    supported_exts: tuple[str, ...] = (".pdf", ".docx", ".pptx", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+    supported_exts: tuple[str, ...] = (".pdf", ".docx", ".pptx", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".xlsx", ".csv")
+    
+    xlsx_rows_per_chunk: int = 100
+    xlsx_cols_per_group: int = 12
+    pptx_include_notes: bool = True
 
 @dataclass
 class SharePointConfig:
@@ -185,20 +180,6 @@ class Config:
         ) # type: ignore
         self.model = ModelConfig(model_choice=model_choice)
         self.system = SystemConfig()
-
-        # Log non-sensitive configuration (with key fingerprints)
-        # _logger.info(
-        #     "Config loaded | search_ep=%s openai_ep=%s docintel_ep=%s | "
-        #     "search_key=%s openai_key=%s docintel_key=%s | model=%s device=%s",
-        #     self.ai_search.endpoint,
-        #     self.openai.endpoint,
-        #     self.doc_intelligence.endpoint,
-        #     _fingerprint(self.ai_search.api_key),
-        #     _fingerprint(self.openai.api_key),
-        #     _fingerprint(self.doc_intelligence.api_key),
-        #     self.model.model_choice,
-        #     self.model.device,
-        # )
 
     def validate(self) -> bool:
         required_fields = [
