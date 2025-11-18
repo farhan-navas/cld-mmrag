@@ -42,13 +42,13 @@ def process_file_to_chunks(
         logger.info(f"  - Created {len(chunks)} chunks")
         
         if not chunks:
-            logger.warning(f"  ! No chunks produced from {file_path.name}")
+            logger.warning(f"! No chunks produced from {file_path.name}")
             return []
         
         return chunks
         
     except Exception as e:
-        logger.error(f"  !! Failed to process {file_path.name}: {e}")
+        logger.error(f"!! Failed to process {file_path.name}: {e}")
         return []
 
 

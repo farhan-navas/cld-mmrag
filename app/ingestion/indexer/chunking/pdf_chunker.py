@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 
 from app.config import config
 from app.ingestion.indexer.chunking.text_splitter import recursive_split_text, create_overlap_chunks
+from app.ingestion.indexer.chunking.normalizer import normalize_di_text, normalize_chunk_text
 
 logger = logging.getLogger("indexer.chunking.pdf")
 
@@ -59,14 +60,14 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
         # Create chunk records; use the page of the first paragraph in the buffer
         page = paragraph_buffer[0]["page"]
         for chunk_text in text_chunks:
-            if chunk_text.strip():
+            chunk_text = normalize_chunk_text(chunk_text)
+            if chunk_text:
                 chunks.append({
                     "title": title,
                     "filepath": filepath,
                     "page": page,
                     "section_path": " > ".join(section_path[-3:]),
                     "content": chunk_text,
-                    "content_markdown": chunk_text,  # already Markdown
                     "bbox": None
                 })
         
@@ -75,7 +76,7 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
     # Process blocks
     for block in blocks:
         block_type = block["type"]
-        text = (block.get("text") or "").strip()
+        text = normalize_di_text(block.get("text") or "")
         
         if not text:
             continue
@@ -98,7 +99,6 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
             
             # Tables are kept as standalone chunks
             table_text = text
-            table_md = block.get("markdown", text)
             
             # If table is too large, split it by rows
             if len(table_text) > max_chars:
@@ -113,13 +113,15 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
                     for row in table_rows[2:]:
                         if len(current_table) + len(row) + 1 > max_chars:
                             # Flush current table chunk
+                            normalized_table = normalize_chunk_text(current_table)
+                            if not normalized_table:
+                                continue
                             chunks.append({
                                 "title": title,
                                 "filepath": filepath,
                                 "page": block["page"],
                                 "section_path": " > ".join(section_path[-3:]),
-                                "content": current_table,
-                                "content_markdown": current_table,
+                                "content": normalized_table,
                                 "bbox": block.get("bbox")
                             })
                             # Start new table chunk with header
@@ -129,37 +131,42 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
                     
                     # Flush remaining
                     if current_table != header:
-                        chunks.append({
-                            "title": title,
-                            "filepath": filepath,
-                            "page": block["page"],
-                            "section_path": " > ".join(section_path[-3:]),
-                            "content": current_table,
-                            "content_markdown": current_table,
-                            "bbox": block.get("bbox")
-                        })
+                        normalized_table = normalize_chunk_text(current_table)
+                        if normalized_table:
+                            chunks.append({
+                                "title": title,
+                                "filepath": filepath,
+                                "page": block["page"],
+                                "section_path": " > ".join(section_path[-3:]),
+                                "content": normalized_table,
+                                "bbox": block.get("bbox")
+                            })
                 else:
                     # Can't split intelligently, just truncate or split by chars
                     table_chunks = recursive_split_text(table_text, max_chars)
                     for tc in table_chunks:
+                        tc = normalize_chunk_text(tc)
+                        if not tc:
+                            continue
                         chunks.append({
                             "title": title,
                             "filepath": filepath,
                             "page": block["page"],
                             "section_path": " > ".join(section_path[-3:]),
                             "content": tc,
-                            "content_markdown": tc,
                             "bbox": block.get("bbox")
                         })
             else:
                 # Table fits in one chunk
+                normalized_table = normalize_chunk_text(table_text)
+                if not normalized_table:
+                    continue
                 chunks.append({
                     "title": title,
                     "filepath": filepath,
                     "page": block["page"],
                     "section_path": " > ".join(section_path[-3:]),
-                    "content": table_text,
-                    "content_markdown": table_md,
+                    "content": normalized_table,
                     "bbox": block.get("bbox")
                 })
             
@@ -169,27 +176,31 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
             # Keep these atomic like tables; no semantic overlap.
             flush_paragraphs()
             
-            body = text  # already markdown from DI / splitter
+            body = text
             if len(body) > max_chars:
                 # Rare, but split safely if huge (e.g., very large code blocks or long captions)
                 for tc in recursive_split_text(body, max_chars):
+                    tc = normalize_chunk_text(tc)
+                    if not tc:
+                        continue
                     chunks.append({
                         "title": title,
                         "filepath": filepath,
                         "page": block.get("page", current_page),
                         "section_path": " > ".join(section_path[-3:]),
                         "content": tc,
-                        "content_markdown": tc,
                         "bbox": block.get("bbox")
                     })
             else:
+                body = normalize_chunk_text(body)
+                if not body:
+                    continue
                 chunks.append({
                     "title": title,
                     "filepath": filepath,
                     "page": block.get("page", current_page),
                     "section_path": " > ".join(section_path[-3:]),
                     "content": body,
-                    "content_markdown": body,
                     "bbox": block.get("bbox")
                 })
             continue
@@ -203,7 +214,7 @@ def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> Lis
                 flush_paragraphs()
             
             # Accumulate paragraph with its page
-            paragraph_buffer.append({**block, "page": new_page})
+            paragraph_buffer.append({**block, "page": new_page, "text": text})
             current_page = new_page
             continue
     

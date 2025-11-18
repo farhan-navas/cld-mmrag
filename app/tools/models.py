@@ -4,6 +4,7 @@ from typing import List, Optional, Dict
 class SearchInput(BaseModel):
     query: str
     filter: Optional[str] = None
+    index_name: str
 
 class Hit(BaseModel):
     id: str
@@ -18,6 +19,7 @@ class SearchOutput(BaseModel):
 
 class FetchInput(BaseModel):
     ids: List[str]
+    index_name: str
 
 class Chunk(BaseModel):
     id: str
@@ -27,7 +29,6 @@ class Chunk(BaseModel):
     page: Optional[int] = None
     section_path: Optional[str] = None
     content: Optional[str] = None
-    content_markdown: Optional[str] = None
 
 class FetchOutput(BaseModel):
     chunks: List[Chunk]

@@ -12,10 +12,12 @@ from app.tools.list_projects import list_projects
 class SearchSchema(BaseModel):
     query: str = Field(..., description="Search query string.")
     top_k: int = Field(8, ge=1, le=50, description="Max results to retrieve.")
+    index_name: str = Field(..., description="The name of the vector index to search over")
     project_name: Optional[str] = Field(None, description="Filter by specific project name (e.g., '25.PDDM Resource' or '02. Quality Procedures and Document Masterlist'). Leave empty to search all projects.")
 
 class FetchSchema(BaseModel):
     ids: List[str] = Field(..., description="Document or chunk IDs to fetch.")
+    index_name: str = Field(..., description="The name of the vector index to search over")
 
 class TableQASchema(BaseModel):
     markdown: str = Field(..., description="A Markdown table.")
@@ -34,7 +36,7 @@ def _tool_search_docs(args: Dict[str, Any]) -> Dict[str, Any]:
         # Create filepath prefix to match against
         filter_expr = f"data/preprocessed/{a.project_name}/"
     
-    res = search_docs(SearchInput(query=a.query, filter=filter_expr))
+    res = search_docs(SearchInput(query=a.query, filter=filter_expr, index_name=a.index_name))
     out = SearchOutput(
         hits=[
             Hit(
@@ -52,7 +54,7 @@ def _tool_search_docs(args: Dict[str, Any]) -> Dict[str, Any]:
 
 def _tool_fetch_chunks(args: Dict[str, Any]) -> Dict[str, Any]:
     a = FetchSchema(**args)
-    res = fetch_chunks(FetchInput(ids=a.ids))
+    res = fetch_chunks(FetchInput(ids=a.ids, index_name=a.index_name))
     out = FetchOutput(
         chunks=[
             Chunk(
@@ -63,7 +65,6 @@ def _tool_fetch_chunks(args: Dict[str, Any]) -> Dict[str, Any]:
                 page=getattr(c, "page", None),
                 section_path=getattr(c, "section_path", None),
                 content=(getattr(c, "content", None) or None),
-                content_markdown=((c.content_markdown or "")[:50_000] if getattr(c, "content_markdown", None) else None),
             )
             for c in res.chunks
         ]

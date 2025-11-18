@@ -15,6 +15,8 @@ st.set_page_config(
 # Initialize session state for chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "is_cost_team_member" not in st.session_state:
+    st.session_state.is_cost_team_member = False
 
 # Title and description
 st.title("🏢 CapitaLand Project Assistant")
@@ -31,6 +33,12 @@ with st.sidebar:
     
     # Show conversation stats
     st.metric("Messages", len(st.session_state.messages))
+    st.checkbox(
+        "Is costing team member",
+        value=st.session_state.is_cost_team_member,
+        key="is_cost_team_member",
+        help="Toggle to query the cost-only knowledge base."
+    )
     
     # Clear conversation button
     if st.button("🗑️ Clear Conversation", use_container_width=True):
@@ -83,7 +91,8 @@ if prompt := st.chat_input("Ask a question about a project..."):
                     API_URL,
                     json={
                         "query": prompt,
-                        "message_history": message_history if message_history else None
+                        "message_history": message_history if message_history else None,
+                        "is_cost_team_member": st.session_state.is_cost_team_member,
                     },
                     timeout=60
                 )

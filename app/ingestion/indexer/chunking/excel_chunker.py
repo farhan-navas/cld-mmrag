@@ -12,6 +12,10 @@ from pathlib import Path
 
 from app.config import config
 from app.ingestion.indexer.chunking.text_splitter import recursive_split_text
+from app.ingestion.indexer.chunking.normalizer import (
+    dataframe_to_plain_table,
+    normalize_chunk_text,
+)
 
 logger = logging.getLogger("indexer.chunking.excel")
 
@@ -56,13 +60,13 @@ def chunk_xlsx(path: Path, title: str, filepath: str) -> List[Dict[str, Any]]:
                 f"[Sheet] {sheet_name} | rows={len(df)}, cols={len(df.columns)} | "
                 f"columns: {col_preview}"
             )
+            summary = normalize_chunk_text(summary)
             chunks.append({
                 "title": title,
                 "filepath": filepath,
                 "page": 1,
                 "section_path": f"Excel > {sheet_name}",
                 "content": summary,
-                "content_markdown": summary,
                 "bbox": None,
                 "metadata_json": json.dumps({
                     "filetype": "xlsx",
@@ -86,23 +90,28 @@ def chunk_xlsx(path: Path, title: str, filepath: str) -> List[Dict[str, Any]]:
                     r1 = min(len(sub), r0 + ROWS_PER_CHUNK)
                     batch = sub.iloc[r0:r1]
                     
-                    # Render to Markdown table
+                    # Render to plain-text table
                     try:
-                        md = batch.to_markdown(index=False)
+                        table_text = dataframe_to_plain_table(batch)
                     except Exception as e:
-                        logger.warning(f"Failed to convert batch to markdown for sheet {sheet_name}: {e}")
+                        logger.warning(f"Failed to convert batch to text for sheet {sheet_name}: {e}")
+                        continue
+                    table_text = normalize_chunk_text(table_text)
+                    if not table_text:
                         continue
                     
                     # If it exceeds max_chars, fall back to recursive split
-                    if len(md) > max_chars:
-                        for tc in recursive_split_text(md, max_chars):
+                    if len(table_text) > max_chars:
+                        for tc in recursive_split_text(table_text, max_chars):
+                            tc = normalize_chunk_text(tc)
+                            if not tc:
+                                continue
                             chunks.append({
                                 "title": title,
                                 "filepath": filepath,
                                 "page": 1,
                                 "section_path": f"Excel > {sheet_name}",
                                 "content": tc,
-                                "content_markdown": tc,
                                 "bbox": None,
                                 "metadata_json": json.dumps({
                                     "filetype": "xlsx",
@@ -118,8 +127,7 @@ def chunk_xlsx(path: Path, title: str, filepath: str) -> List[Dict[str, Any]]:
                             "filepath": filepath,
                             "page": 1,
                             "section_path": f"Excel > {sheet_name}",
-                            "content": md,
-                            "content_markdown": md,
+                            "content": table_text,
                             "bbox": None,
                             "metadata_json": json.dumps({
                                 "filetype": "xlsx",

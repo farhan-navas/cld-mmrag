@@ -50,9 +50,39 @@ def setup_logging():
         "handlers": handlers,
         "loggers": {
             # Named loggers
-            "agent": {"handlers": root_handlers, "level": level, "propagate": False},
+            "main_agent": {"handlers": root_handlers, "level": level, "propagate": False},
+            "query_rewrite_agent": {"handlers": root_handlers, "level": level, "propagate": False},
             "schema": {"handlers": root_handlers, "level": level, "propagate": False},
             "config": {"handlers": root_handlers, "level": level, "propagate": False},
+
+            # Ingestion Pipeline
+            "doc_processor": {"handlers": root_handlers, "level": level, "propagate": False},
+            "ingestion_incremental_load": {"handlers": root_handlers, "level": level, "propagate": False},
+            "mapping_table": {"handlers": root_handlers, "level": level, "propagate": False},
+            "run_ingestion": {"handlers": root_handlers, "level": level, "propagate": False},
+            "sharepoint_api": {"handlers": root_handlers, "level": level, "propagate": False},
+
+            # Indexer Tools
+            "indexer.clients": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.embeddings": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.index_manager": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.main": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.uploader": {"handlers": root_handlers, "level": level, "propagate": False},
+            
+            # Indexer.Chunking
+            "indexer.chunking.excel": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.chunking.pdf": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.chunking.pptx": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.chunking.strategies": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.chunking.text_splitter": {"handlers": root_handlers, "level": level, "propagate": False},
+            
+            # Indexer.Extractors
+            "indexer.extractors.di": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.extractors.excel": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.extractors.pptx": {"handlers": root_handlers, "level": level, "propagate": False},
+
+            # Tools
+            "tool.list_projects": {"handlers": root_handlers, "level": level, "propagate": False},
             "tool.search_docs": {"handlers": root_handlers, "level": level, "propagate": False},
             "tool.synthesize_answers": {"handlers": root_handlers, "level": level, "propagate": False},
             "tool.fetch_chunks": {"handlers": root_handlers, "level": level, "propagate": False},
@@ -78,7 +108,6 @@ def setup_logging():
 
     if enable_azure_http:
         logging.getLogger("azure").setLevel("INFO")
-        logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel("INFO")
 
 # init logging early
 setup_logging()
@@ -94,7 +123,8 @@ class AzureAISearchConfig:
     """Configuration for Azure AI Search."""
     endpoint: str
     api_key: str
-    index_name: str = "rag-index"
+    index_name: str = "rag-index-18-11" # prev index_names: ["rag-index"]
+    cost_index_name: str = "cost-index"
 
 @dataclass
 class AzureDocIntelligenceConfig:
@@ -128,8 +158,8 @@ class SystemConfig:
 
 @dataclass
 class IndexingConfig:
-    chunk_max_chars: int = 2200
-    chunk_overlap_chars: int = 220
+    chunk_max_chars: int = 4500
+    chunk_overlap_chars: int = 500
     embed_batch_size: int = 64
     upload_batch_size: int = 500
     include_tables: bool = True

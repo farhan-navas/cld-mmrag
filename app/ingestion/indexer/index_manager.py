@@ -52,7 +52,6 @@ def ensure_index() -> None:
         SimpleField(name="page", type=SearchFieldDataType.Int32, filterable=True, sortable=True),
         SearchableField(name="section_path", type=SearchFieldDataType.String, filterable=True),
         SearchableField(name="content", type=SearchFieldDataType.String),
-        SearchableField(name="content_markdown", type=SearchFieldDataType.String),
         # vector field
         SearchField(
             name="contentVector",

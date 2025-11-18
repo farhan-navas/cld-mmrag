@@ -1,10 +1,1841 @@
+Loaded 28 queries from ../data/validation/query-list.json
+
 ================================================================================
-QR-PD-05-Simplified Approval Paper for Pre-qualification_240506
+[1] Query: How long does it take for FSS to make payment?
+
+Top 5 retrieved titles:
+1. PDDM Internal Payment Workflow_2025.05.15 updated, 
+ Contractor
+
+Issue
+
+Tax Invoice
+
+PDDM
+
+6 days to Review
+
+& Recommend (incl. performing GR in SAP & email invoice to FSS poinvoice.sg@capitaland.com)
+
+FSS
+
+4 days to create e-invoice and route for DOA approval
+
+FSS
+
+21 days to
+
+Make Payment
+
+Internal Payment Flow (Contractor, Consultants)
+
+T + 5
+
+T + 9
+
+T + 34
+
+35 Days
+
+DOA Approvers
+
+4 days to Review
+
+&
+
+Approve
+
+T + 13
+
+Notes :
+
+All Durations include Sat, Sun and Public Holidays, and start from date of invoice
+
+#1 : Requestor to respond to FSS’s payment query received via emails from SAP Workflow & BATCHVIM within 24 hours.
+
+#2 : Project Admin to check if all DOA approvals have been obtained at the T+13 mark and to chase for any outstanding approval.
+
+#3 : Timeline for SAP Payment Run (which commence on Mon) process; see next 2 slides for sample workflow.
+
+T
+
+Note #1
+
+Note #2
+
+Note #3
+
+Consultant
+
+Issue
+
+Tax Invoice
+
+PDDM
+
+6 days to Review
+
+& Recommend (incl. performing GR in SAP & email invoice to FSS poinvoice.sg@capitaland.com)
+
+FSS
+
+4 days to create e-invoice and route for DOA approval
+
+FSS
+
+16 days to
+
+Make Payment
+
+30 Days
+
+DOA Approvers
+
+4 days to Review
+
+&
+
+Approve
+
+T + 29
+
+Timeline for Weekly Payment Run
+
+Timeline for Weekly Payment Run
+
+Recap on Payment Workflow Enhancement implemented in 2024
+
+SN
+
+Measures
+
+1
+
+System to generate reminder for payment clarifications raised by FSS (which needs to be resolved before payment can be posted) to BU Rep.
+
+Reminder is sent to the requestor daily at 5am. For PO with partial GR, the reminder will be sent to the prior GR personnel. For new PO (PO without any GR history), it’s currently sent to PO creator as GR personnel is not maintained.
+
+2
+
+Payment Approval Workflow
+
+To expedite payment approval, concurrent payment approval in SAP for Level 2 onwards approvers have been implemented for CLD entities in May 2024. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/2025/PDDM Internal Payment Workflow_2025.05.15 updated.pptx)
+
+Expected file: PDDM Internal Payment Workflow_2025.05.15 updated.pptx
+
 ================================================================================
-QR-PD-05-Simplified Approval Paper for Contract Award_240506
+[2] Query: Who should I approach for payment escalation?
+
+Top 5 retrieved titles:
+1. PDDM In-House Training_2024.08.02, 
+ CapitaLand
+
+SN
+
+Measures
+
+Status
+
+05
+
+Single contact point in FSS for AP inquiries regarding supplier invoice payment, invoice processing & vendors statement of account. For escalation, pls email to #CLI - GSS - FSS P2P RE (SGP) (for SAP RE) or SGAPYardiGRoup (for Yardi Biz Parks) in order for the responsible AP primary/backup person to respond.
+
+Implemented Users should self-service to enquire on invoice and payment status: CL Project Ascent_VIM invoice status.pdf (guide published in GSS intranet) or email to Finance Shared Services, P2P mailbox for both RE and Biz Parks. For hot queue payment & escalation, pls email to #CLI - FSS AP (SGP) group email for both RE and Biz Parks, in order for the respective primary/backup person to respond.
+
+CapitaLand
+
+CapitaLand Development
+
+99 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/PDDM In-House Training_2024.08.02.pdf)
+
+Expected file: PDDM Internal Payment Workflow_2025.05.1 5 updated.pptx
+
 ================================================================================
-QR-PD-05-Simplified Approval Paper for Contract Award_240506
+[3] Query: Can I have the template for Simplified SA for Non-Core Consultants?
+
+Top 5 retrieved titles:
+1. 230904-PDDM Process Review, 
+ CapitaLand
+
+S/N
+
+Consultant
+
+Full SA
+
+Simplified SA
+
+LOA
+
+Criteria
+
+· Core Consultant
+
+· Non-Core Consultant
+
+· Non-Core Consultant; & · Fee below $50K
+
+1
+
+Architect
+
+:selected: √
+
+2
+
+C&S Consultant
+
+:selected: √
+
+3
+
+M&E Consultant
+
+:selected: √
+
+4
+
+QS
+
+:selected: √
+
+5
+
+Landscape Consultant
+
+:selected: √
+
+6
+
+Accredited Checker
+
+:selected: √
+
+:selected: √
+
+7
+
+Design for Safety (DfS) Consultant
+
+:selected: √
+
+:selected: √
+
+8
+
+ESD/Green Mark Consultant
+
+:selected: √
+
+:selected: √
+
+9
+
+FSE Consultant
+
+:selected: √
+
+:selected: √
+
+10
+
+Facade Consultant
+
+:selected: √
+
+:selected: √
+
+11
+
+Traffic Consultant
+
+:selected: √
+
+:selected: √
+
+CapitaLand
+
+CapitaLand Development
+
+11 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/2023/230904-PDDM Process Review.pdf)
+
+Expected file: Simplified SA for Non-Core Consultants_2024.07 .10
+
 ================================================================================
-QR-PD-05-Simplified Approval Paper for Pre-qualification_240506
+[4] Query: Can I have the template fore letter of appointment of consultant?
+
+Top 5 retrieved titles:
+1. 2022.09.14 - Letter of Intent, 
+ [Name of Successful Tenderer]
+
+[File Ref]
+
+[Date]
+
+Page 2 of 3
+
+[Name of Successful Tenderer]
+
+[File Ref]
+
+[Date]
+
+Page 2 of 4
+
+Company Letterhead
+
+[File Ref]
+
+[Date]
+
+VIA ELECTRONIC MAIL & MAIL
+
+[Name of Contractor]
+
+[Address]
+
+Attention: [Mr/Ms Person in-charge]
+
+Dear Sirs
+
+[PROJECT TITLE]
+
+MAIN CONTRACT TENDER / [TYPE OF WORK] SUB-CONTRACT TENDER (THE “WORKS”)
+
+LETTER OF INTENT
+
+We refer to the tender submitted by [Name of Contractor] (hereinafter called “the Contractor”) submitted on [Date] and subsequent discussions in connection with the above Works.
+
+We, CapitaLand Development Pte. Ltd., on behalf of [Name of Employer] (hereinafter called “the Employer”), are pleased to issue this letter of intent (“Letter”) to the Contractor for the design (notwithstanding that such design or part thereof may be or may have been prepared, developed or issued by the Employer or Architect and/or qualified person on his behalf), construction and maintenance of the Works subject to the following terms and conditions:
+
+Effect of this Letter
+
+Subject to the precise terms of the contract between the Employer and the Contractor (the “Contract”) being agreed on, it is the Employer’s intention to appoint the Contractor for the Works.
+
+If the Contract is entered into between the Employer and the Contractor, the terms of the Contract shall supersede the terms of this Letter, and the preparation and preliminary works described at Clause 3 below which have been carried out by the Contractor shall be deemed to have been carried out under the Contract and amount due for such works shall be payable to the Contractor as part of the first progress payment.
+
+Terms of the Contract
+
+Subject to and conditional upon the issuance of the Letter of Acceptance for the Works and/or the execution of the definitive contract, the Contractor agrees that the following stipulations shall apply to the Works:
+
+The Contract Sum for the Works shall be Singapore Dollars [Amount in Words] Only (S$ [Amount in Numeric]), exclusive of any GST based on the tender offer. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/03. Quality Records/2022.09.14 - Letter of Intent.docx)
+
+Expected file: QR-PD-28 Letter of Appointment of Consultant.pdf
+
 ================================================================================
-QR-PD-05-Simplified Approval Paper for Pre-qualification_240506
+[5] Query: Can I have the transmittal form?
+
+Top 5 retrieved titles:
+1. PDDM In-House Training_2024.08.02, 
+ <table>
+<tr>
+<th>No</th>
+<th>Scope</th>
+<th>Findings</th>
+<th>Recommendations</th>
+</tr>
+<tr>
+<td>4</td>
+<td>Innovation</td>
+<td>a. Overseas developers tend to be more willing to pay for innovation, compared to local developers with smaller risk appetites. b. CLD PDDM is ahead of competitors in its requirement to use BIM (beyond clash detection) to coordinate design. c. CLD PDDM is not willing to pay more for innovation without a clear view of ROI.</td>
+<td>i. Relax requirements to tap into CIF so that it is more applicable for projects to adopt. E.g. allowing innovation that generates publicity for CLD instead of mainly focusing on ROI.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Sustainability</td>
+<td>a. Sustainable measures to be adopted have to be established upfront as a group, as most will come at a cost. b. CLD PDDM is not willing to pay more for sustainability without a clear view of ROI.</td>
+<td>i. Be willing to commit funds to sustainability and look towards a longer ROI horizon. ii. Push for greater publicity for our current sustainability efforts.</td>
+</tr>
+<tr>
+<td rowspan="2">6</td>
+<td rowspan="2">Others</td>
+<td rowspan="2">a. CLD PMs are technically stronger than our competitors, and thus is time efficient for consultants as we can comprehend the strategies/proposals better and quicker. b. CLD PDDM has a strong culture of sharing. c. CLD PDDM is consumer centric and conscious about product &amp; user enjoyment. d. Low turnovers, thus we have the advantage of continuity in knowledge/lessons learnt over the years.</td>
+<td>i. Partnerships with foreign companies/consultants can expose ourselves to new perspectives that may benefit the team. ii. Further exposure to projects both local and overseas developments. E.g. study trips abroad.</td>
+</tr>
+<tr>
+<td>iii. Portray more trust with consultants/contractors and be more transparent about internal constraints faced to work collaboratively together.</td>
+</tr>
+</table> 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/PDDM In-House Training_2024.08.02.pdf)
+
+Expected file: QR-PD-03 Transmittal Form.xls
+
+================================================================================
+[6] Query: What is the required width for a straight clearway ramp and access way for cars?
+
+Top 5 retrieved titles:
+1. Workspace Carpark Design Guidelines, 
+ 7400
+
+4500
+
+3700
+
+3700
+
+SINGLE LANE
+
+MULTI-LANE
+
+Example of a straight, multi lanes (both heavy vehicles and cars)
+
+Example of straight, single and multi-lane (Heavy vehicles)
+
+For Heavy Vehicles
+
+Rigid-Frame Vehicles of length < 7.5m
+
+Rigid-Frame Vehicles of length ≥ 7.5m
+
+LTA
+
+CL
+
+LTA
+
+CL
+
+Minimum Width of straight clearway ramp and access
+
+way - on straight
+
+4.5m 7.4m
+
+4.5m 7.4m
+
+- 1 way traffic flow
+
+4.5m
+
+4.5m
+
+- 2 way traffic flow
+
+7.4m
+
+7.4m
+
+Minimum Width of access way - on curve
+
+5.5m per lane
+
+5.5m per lane
+
+7.5m per lane
+
+7.5m per lane
+
+Inside turning radius of curve
+
+6.0m
+
+Maximum gradient of ramp
+
+- Straight ramp
+
+1:12
+
+- Curved ramp
+
+1:15
+
+LTA: Land Transport Authority, Singapore.
+
+Note: For articulated vehicles, refer to LTA Code of Practice on Vehicle Parking"
+
+Workspace Guidelines Main Accessways and Clearways Ramps
+
+9 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/Design Guidelines/Workspace Carpark Design Guidelines.pdf)
+
+Expected file: P Workspace Carpark Design Guidelines.pdf age 7
+
+================================================================================
+[7] Query: What are the size requirements for motorcycle parking lots?
+
+Top 5 retrieved titles:
+1. Workspace Carpark Design Guidelines, 
+ . Motorcycle lots for delivery riders shall be located within the carpark (left over spaces), preferably at the carpark entry level and near to lobbies or access points.
+
+. These lots shall be over and above and segregated from the common motorcycle lots parking area. Size of the lot shall be the same as a typical motorcycle lot. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/Design Guidelines/Workspace Carpark Design Guidelines.pdf)
+
+Expected file: P Workspace Carpark Design Guidelines.pdf age 22 - Section 3.3.2
+
+================================================================================
+[8] Query: What are the design requirements for EV charging station lots?
+
+Top 5 retrieved titles:
+1. Workspace Carpark Design Guidelines, 
+ Refer to LTA's Guidelines on Minimum EV Charging Provision in Developments and also URA requirements on no. of EV lots for strategic areas
+
+Adoption of EV lot design based on CL standards is subject to LTA approval
+
+1500
+
+1500
+
+50
+
+50
+
+100
+
+100
+
+EV
+
+EV
+
+690
+
+690
+
+XX
+
+150
+
+XX
+
+150 120
+
+100
+
+120
+
+100
+
+EV CHARGING ONLY
+
+EV CHARGING ONLY 2500
+
+2500 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/Design Guidelines/Workspace Carpark Design Guidelines.pdf)
+
+Expected file: P Workspace Carpark Design Guidelines.pdf age 22 - Section 4.2
+
+================================================================================
+[9] Query: 
+
+Top 5 retrieved titles:
+1. 230726-CLI Procurement Policy applicable to CLD, 
+ Policies highlighted in yellow are applicable to PDDM SG 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/2023/230726-CLI Procurement Policy applicable to CLD.pdf)
+
+Expected file: None
+
+================================================================================
+[10] Query: What are the checklist for wash basins?
+
+Top 5 retrieved titles:
+1. Workspace Toilet Design Guidelines, 
+ 2.2 There shall be min. 750mm clearance at side of the countertop, if not abutting against the wall
+
+2.3 Flat-bottomed wash basin is not recommended. Such wash basins do not effectively allow dirt and debris to be washed down easily. Under counter basins shall be used, above- counter basins/over-counter basins could be considered for Commercial Office. Trough type basins shall not be used
+
+2.4 Wash basins shall have min. internal length of 500mm
+
+2.5 Floor trap and bib tap shall be provided
+
+CapitaLand
+
+Bib tap hidden within the cabinet below the basin
+
+450
+
+FT
+
+Compartment with bib tap without base panel
+
+Other compartments to be provided with removable mesh base panel to avoid water ponding in the event of a leak
+
+Workspace Guidelines Wash Basin Zone
+
+17 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/Design Guidelines/Workspace Toilet Design Guidelines.pdf)
+
+Expected file: Workspace Toilet Design Guidelines.pdf Page 16
+
+================================================================================
+[11] Query: What is the SWFA provision from Infinite Studios?
+
+Top 5 retrieved titles:
+1. Workspace Toilet Design Guidelines, 
+ Female
+
+Male
+
+Area
+
+WC
+
+/1000m2
+
+Basin
+
+/1000m2
+
+WC
+
+/1000m2
+
+Urinal
+
+/1000m2
+
+Basin
+
+/1000m2
+
+Galen
+
+4500
+
+7
+
+1.56
+
+6
+
+1.33
+
+6
+
+1.33
+
+6
+
+1.33
+
+6
+
+1.33
+
+Kendall
+
+3400
+
+4
+
+1.18
+
+4
+
+1.18
+
+4
+
+1.18
+
+4
+
+1.18
+
+4
+
+1.18
+
+Changi City
+
+8800
+
+14
+
+1.59
+
+10
+
+1.14
+
+10
+
+1.14
+
+8
+
+0.91
+
+8
+
+0.91
+
+Infinite Studios
+
+2600
+
+4
+
+1.54
+
+5
+
+1.92
+
+4
+
+1.54
+
+3
+
+1.15
+
+3
+
+1.15
+
+Nucleos
+
+6700
+
+10
+
+1.49
+
+8
+
+1.19
+
+6
+
+0.90
+
+6
+
+0.90
+
+6
+
+0.90
+
+Galaxis
+
+4200
+
+7
+
+1.67
+
+4
+
+0.95
+
+6
+
+1.43
+
+6
+
+1.43
+
+4
+
+0.95
+
+Average
+
+1.5
+
+1.2
+
+1.3
+
+1.1
+
+1.0
+
+Note: highest and lowest ratio is omitted to avoid distortion of average
+
+Fixtures
+
+Female Toilet (No of fixtures)
+
+Male Toilet
+
+WC (per 1000m2)
+
+1.5
+
+1.2
+
+Wash Basin (per 1000m2)
+
+1.2
+
+1.1
+
+Urinal (per 1000 m2)
+
+NA
+
+1.1
+
+Note:
+
+Recommendation based on average number of toilet fixtures from proven mature projects of a similar nature, below :- 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/Design Guidelines/Workspace Toilet Design Guidelines.pdf)
+
+Expected file: Workspace Toilet Design Guidelines.pdf Annex page 2
+
+================================================================================
+[12] Query: Where can I find the Quality Procedures for appointment of consultants?
+
+Top 5 retrieved titles:
+1. QR-PD-05 CL Approval Paper-Appoint of Consultants (for ref), 
+ REGN. NO.: 200106159R
+
+(Incorporated in the Republic of Singapore)
+
+PAPER FOR CIRCULATION
+
+TO : Management Committee A / Country Committee A (Singapore) / Country Committee B (Singapore)#
+
+or
+
+[Name]#
+
+[Designation]
+
+SUBJECT : [Project Title]
+
+Appointment of consultants
+
+FOR : Approval
+
+DATE : [Date]
+
+1 PURPOSE
+
+1.1 The purpose of this paper is to seek approval for the appointment of core consultants as listed below for the proposed [Project Title] at a total lump sum of S$[Amount]:
+
+[Name] (Project Architect);
+
+[Name] (Civil & Structural Engineer);
+
+[Name] (Mechanical & Electrical Engineer); and
+
+[Name] (Quantity Surveyor)
+
+history/background of the issue; see example below.
+
+2 BACKGROUND
+
+2.1 An upgrading project is undertaken at [Name of Project] as part of the main asset enhancement exercise following the acquisition of the premise. The total Contract Period of the project is [Number] months and is scheduled to be completed by [Date].
+
+2.2 The scope of upgrading works generally comprise:
+
+Etc
+
+Etc
+
+(c) Etc
+
+2.3 A team of core consultants is required to be appointed to undertake design and consultancy services to ensure the works comply with the employer’s requirements and with all requirements, laws, by-laws and regulations of all relevant governmental and statutory authorities.
+
+SCOPE OF SERVICES
+
+The scope of services by the consultants broadly include:
+
+(a) Project Architect
+
+(i) Architectural design services;
+
+(ii) Statutory submissions;
+
+(iii) Contract administration and work supervision.
+
+(b) Civil & Structural Engineer
+
+(i) Civil & structural engineering design services;
+
+(ii) Statutory submissions;
+
+(iii) Work supervision.
+
+Mechanical & Electrical Engineer
+
+(i) Mechanical & electrical engineering design services;
+
+(ii) Statutory submissions;
+
+(iii) Work supervision.
+
+Quantity Surveyor
+
+Estimating & cost advice
+
+Management of procurement route;
+
+Tender & contract documentation;
+
+Cost control & account finalization.
+
+see example below.
+
+4 SELECTION OF CONSULTANTS 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/03. Quality Records/QR-PD-05 CL Approval Paper-Appoint of Consultants (for ref).docx)
+
+Expected file: QP and Document Masterlist.Rev07.202 4.05.06.xlsx
+
+================================================================================
+[13] Query: Where can I find the template for prequalification approval?
+
+Top 5 retrieved titles:
+1. QR-PD-05 Approval Paper-Pre-Q of Contractors(ref), 
+ AUTHORITIES [...] 7.1 In accordance with section [Number] of the Financial Authority Limits for CMTML, approval must be obtained from [Approving Authority] for the approval of this paper. (see Annex 8)
+
+8 FOR APPROVAL
+
+8.1 Approval is hereby sought for the prequalification of contractors / suppliers to be invited to participate in main contract / [Type of Work] sub-contract tender for [Project Title].
+
+ANNEX 1 – Approval Paper on Approved PDE For The Project
+
+ANNEX 2 - Letter/Electronic Mail from [Name of Contractor] to decline on Participation in Tender
+
+ANNEX 3 - Financial Analysis Report from Finance
+
+ANNEX 4 - Pre-Qualification Report And Recommendation Submitted By [Consultants]
+
+ANNEX 5 - Preliminary Internal Approval For Prequalification Of Contractors from CDO
+
+ANNEX 6 - Company Details And Track Records Of The Shortlisted Contractors/Suppliers
+
+ANNEX 7 - Pre-Qualification Scoring Comparison Matrix
+
+ANNEX 8 - FAL
+
+Subject:
+
+[Project Title]
+
+Prequalification of Contractors / Suppliers for Main Contract / [Type of Work] Sub-Contract Tender
+
+Submitted by:
+
+Signature
+
+Date
+
+[Name of PM]
+
+[Designation], Project Management,
+
+Project Development, Singapore
+
+Supported by:
+
+Signature
+
+Date
+
+Simon Yong
+
+Chief Development Officer, Singapore and International
+
+(Note: If CEO is one of the approving authority under DOA)
+
+[Name]
+
+Deputy Chief Development Officer
+
+[e.g Residential, Retail, Commercial, Mixed Development, Business Park, Data Centre and Industrial]
+
+[Name]
+
+[Designation], Cost & Contract,
+
+Project Development, Singapore
+
+[Name]
+
+[Designation], Asset Management
+
+For Approval
+
+Approved by:
+
+Signature
+
+Date
+
+Decision
+
+Comments
+
+[Name]#
+
+[Designation]
+
+Approved/
+
+Disapproved/
+
+Abstained
+
+[Name]#
+
+[Designation]
+
+Approved/
+
+Disapproved/
+
+Abstained
+
+Note: [Blue Text] Amend as appropriate before issuance
+
+# Depends on DOAs
+
+QR-PD-05
+
+Revision No: 01
+
+Date: 16 Aug 2019
+
+Page 1 of 6 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/03. Quality Records/QR-PD-05 Approval Paper-Pre-Q of Contractors(ref).docx)
+
+Expected file: QR-PD-05-Simplified Approval Paper for Contract Award_240506.docx
+
+================================================================================
+[14] Query: Where can I find the template for simplified approval paper?
+
+Top 5 retrieved titles:
+1. 240506-PDDM Process Review, 
+ CapitaLand
+
+· To include "Not in CapitaLand's Vendor Controlled List" as a reason for selection
+
+. To further streamline approval limits as defined in FAL up to MD levels for award of contracts with or without quotation/ tenders (see changes in red fonts below).
+
+· To have a new simplified approval paper for pre-qualification of contractors 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/2024/240506-PDDM Process Review.pdf)
+
+Expected file: QR-PD-05-Simplified Approval Paper for Contract Award_240506.docx
+
+================================================================================
+[15] Query: Where can I find the service agreement templates?
+
+Top 5 retrieved titles:
+1. QR-PD-02 Tracking on Service Agreement, 
+ [SBU]
+
+Tracking on Service Agreement
+
+No
+
+Project Title
+
+Type of Consultants
+
+Name of Consultants
+
+Date of Budget Approval
+
+Paper for Appointment of Consultants
+
+Signing of Service Agreement (Date)
+
+Date of Agreement Inserted
+
+Remarks
+
+Date of Paper
+
+Date of Approval
+
+Remarks
+
+Send to Consultants for signing
+
+Signed by Consultants
+
+Signed Internally
+
+Remarks
+
+1
+
+Project A
+
+PM
+
+CLPM
+
+2
+
+Concept Architect
+
+3
+
+Project Architect
+
+4
+
+C&S Engineer
+
+5
+
+M&E Engineer
+
+6
+
+QS
+
+7
+
+ID
+
+8
+
+Landscape
+
+9
+
+Signage
+
+10
+
+AC
+
+11
+
+RI (A)
+
+12
+
+RI (M&E)
+
+13
+
+Etc
+
+14
+
+Etc
+
+1
+
+Project B
+
+PM
+
+CLPM
+
+2
+
+Concept Architect
+
+3
+
+Project Architect
+
+4
+
+C&S Engineer
+
+5
+
+M&E Engineer
+
+6
+
+QS
+
+7
+
+ID
+
+8
+
+Landscape
+
+9
+
+Signage
+
+10
+
+AC
+
+11
+
+RI (A)
+
+12
+
+RI (M&E)
+
+13
+
+Etc
+
+14
+
+Etc
+
+Note: [Blue Text] Amend as appropriate before issuance
+
+&8QR-PD-02
+
+Revision No: 01
+
+Updated on 16 Aug 2019 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/03. Quality Records/QR-PD-02 Tracking on Service Agreement.xlsx)
+
+Expected file: QR-PD-04 Service Agreement Templates
+
+================================================================================
+[16] Query: Where can I find the front end query list for tender?
+
+Top 5 retrieved titles:
+1. PDDM In-House Training_2024.08.02, 
+ FRONT-END QUERY + R TENDER DOCUMENTATION (NEW BUILD PROJECTS) |Client/Architect : Date :
+
+Project Title :
+
+No
+
+Questions
+
+Answers
+
+Actioned By
+
+Remarks
+
+A.
+
+GENERAL
+
+1.
+
+How many contractors will be invited to participate in the tender.
+
+Mininum 3 contractors as a guide
+
+Internal Note: Not to invite contractors whose average CONQUAS score is below industry category average
+
+2.
+
+Tender Document to be submitted to:
+
+:unselected: Consultant's office :selected: Employer's office
+
+3.
+
+What is the date for calling of tenders.
+
+Consultants to refer to tender timeline issued for action required.
+
+4.
+
+What is the date for closing of tenders.
+
+5.
+
+Will the lithography charges and tender deposit be in a form of a cheque?
+
+:unselected: Yes, to be made in favour of Employer :selected: No
+
+6.
+
+How are the lithography charges to be recovered?
+
+:selected: Deemed included in Consultants' fee proposal :unselected: To be borned by Employer
+
+FRONT-END QUERY FOR TENDER DOCUMENTATION (NEW BUILD PROJECTS)
+
+No
+
+Questions
+
+Answers
+
+Actioned By
+
+Remarks
+
+11.
+
+Is Alternative Contract Period required to be proposed by the Contractor? Are the works required to be executed in a specific order. If so, please provide details of the parts and order of execution of the Works.
+
+:selected: Yes :unselected: No :unselected: Yes :unselected: No
+
+Internal Note: Allow contractors to propose alternative contract period to gauge if Employer's set contract period is reasonable. Note: Under Design for Safety guidelines, contractor must be given sufficient time to complete the project.
+
+12.
+
+Performance Bond . % of Contract Sum
+
+:unselected: 5% :selected: 10% :unselected: $5 million
+
+· Submission from the date of Letter of Acceptance/Award
+
+:unselected: 7 calendar days :selected: 14 calendar days
+
+CapitaLand
+
+CapitaLand Development
+
+110 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/PDDM In-House Training_2024.08.02.pdf)
+
+Expected file: 01 Front End Query List
+
+================================================================================
+[17] Query: Where can I find our in- house tender SOPs?
+
+Top 5 retrieved titles:
+1. PDDM In-House Training_2025.04.29_For Circulation, 
+ Conversion to Resi
+
+New programmes, biodiversity
+
+Cleaner air, more outdoor workspace
+
+Flood resistant
+
+2030
+
+2060
+
+2090
+
+2330
+
+2630
+
+The 600-year office concept is a bold vision that pushes my questions around designed lifespan to the extreme - but there are clear strategies here that can be used on all of our projects. By leveraging our research and thought leadership to lay out several future scenarios and design a 'framework', with a long lifespan capable of supporting them, we can design buildings that are far more adaptable than any buildings of the past. We firmly believe that, with today's technology and infrastructure, it is possible to construct buildings that extend the lifespan of their carbon-intensive structure, whilst being adaptable enough to thrive in an uncertain future.
+
+The Year 2030: The 600-year office welcomes its first occupants. This building is designed around a fundamental 'framework' structure with a very long lifespan, and lightweight 'inserts' that have a shorter lifespan and can be reconfigured as requirements change. The framework is far more adaptable than the structure of a typical tall building, with slabs every 12 metres, meaning each vertical module can accommodate three office levels, four residential levels, or two levels of another use, such as a building amenity. On day 1, our office building is a single-use office, but with a plan for multiple future uses and adaptations.
+
+The Year 2060. London has a climate similar to Barcelona today. All vehicles in central London will be electric, which will make the city quieter and the air cleaner. It will be 20 years since anyone in our building worked all day behind a monitor at a desk. This means that the outdoor working trend we saw the start of in the 2020s has expanded dramatically - users expect to work outdoors all day when the weather allows. The 600-year office was designed with a plan for this change in mind: office spaces can be easily reconfigured to enhance and expand outdoor workspace. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/2025/PDDM In-House Training_2025.04.29_For Circulation.pdf)
+
+Expected file: 02 CLD SOP (Internal)
+
+================================================================================
+[18] Query: Where can I find the latest process review changes?
+
+Top 5 retrieved titles:
+1. 230817-PDDM Training on ISO Procedures, 
+ Capitaland Singapore
+
+Financial Authority Limits ("FAL")* Effective 15 June 2023
+
+Ubers are to refer to Capitaland intranet (Click-afunctions & Finance-> Policies and guidelines > B. Corporate Governance -> B1, Authorisation Limits .- CLD) to ensure they use the latest version The key personnel isting is only for reference and wil be updated from time to time.
+
+Ful compliance is expected without exception. In the event of doubt, please seek clarification from your supervisor. "Applicable for Singapore, Malaysia, Philippines and ASEAN Fund (Excludes Flexible Workspace)
+
+PART 2A .: APPROVAL (To be filled in by Employer)
+
+Employer's/PM's Approval :
+
+:unselected: Approved
+
+:unselected: Disapproved
+
+Remarks
+
+Signature :
+
+Date :
+
+Name:
+
+57
+
+PART 2B : AI/AD NO
+
+Employer's Representative's Instruction No / Architect's Instruction No.
+
+Architect's Direction No :| (delete where appropriate)
+
+(delete where appropriate) Dated
+
+Dated : -
+
+DOA Related Procedures
+
+· Always refer to the latest DOA under Finance function in iHub
+
+· For approval put up to CLS MC/ Board, Initiating Dept (Head) shall be CDO and HOD to support
+
+· Approval to "Waiver of Competition for Tender" must be sought per PQ DOA prior to commencement of direct negotiation
+
+Recommendation Sign-Off for RVO
+
+· Current RVO Form Part 2A only require PM to sign- off the recommendation prior to DOA approval
+
+· To stop the practice of having multiple PDDM staff to support the RVO
+
+· Project Director/PM are overall in charge
+
+· Support from IAM/Ops etc only required if RVO is requested by them
+
+· For meetings with Consultants, Ops & IAM, to have a segment dedicated to RVOs
+
+CapitaLand
+
+CapitaLand Development
+
+73 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/230817-PDDM Training on ISO Procedures.pdf)
+
+Expected file: Process Review
+
+================================================================================
+[19] Query: Where can I download the network Project Folder structure to use for new project?
+
+Top 5 retrieved titles:
+1. 230817-PDDM Training on ISO Procedures, 
+ CHECKLIST FOR PREPARATON OF PROPOSAL FOR BTS FACILITY
+
+Part A : Client information
+
+Company's name
+
+Nature of Business
+
+Type of Industry
+
+Food
+
+Turnover
+
+No of Staff
+
+Address of HQ
+
+Tel
+
+Fax
+
+Co liaison person
+
+Address
+
+SharePoint
+
+P. Sauch thì thơny
+
+Q
+
+Capitaland
+
+TOMS
+
+# Not followng
+
+·
+
+8
+
+0
+
+Documents > 01. elCIMS File Folders > 20. Network File Folder / Folders Template > 02. e-Project File Folder
+
+0
+
+0
+
+Integrated Developne.
+
+Modded
+
+Modified By
+
+ok Staging.Det
+
+Documents
+
+Shr Cortirts
+
+ET Cont
+
+Pre-requisite Form for RFP/BTS
+
+· IAM to initiate RFP/BTS FS request via Technical Checklist Form
+
+· Provide essential technical info, how keen IAM is on the project, potential competitors etc.
+
+Network Project Folder
+
+· For new projects, mandatory to create Project Folder in ISO Portal for proper keeping of records
+
+· Project Admin responsible for filing
+
+· Project Team to forward all docs to be filed promptly to Project Admin
+
+· Use "Staging Doc" Folder to temporary deposit records to be further sorted out to file into respective folders
+
+CapitaLand
+
+CapitaLand Development
+
+74 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/230817-PDDM Training on ISO Procedures.pdf)
+
+Expected file: 02. e-Project File Folder_240408
+
+================================================================================
+[20] Query: What is Threesixty Cost Management performance evaluation for J’den in 2024?
+
+Top 5 retrieved titles:
+1. 230726-CLI Procurement Policy applicable to CLD, 
+ A. Upon award of the contract, business owner or their appointed representative are to conduct performance [evaluation1 [of the existing vendors including framework contract vendors on a yearly basis or as and when the contract is completed (for contract duration of less than a year). However, vendor performance evaluation is not applicable for ad-hoc purchase value of less than or equal to S$5,000 vendors.
+
+B. In the evaluation, it is important to list down the vendor's key person in-charge such that the evaluation is not only limited to the organisation's performance but also includes that of the person in- charge.
+
+1. Currently, Vendor Performance Evaluation is not centralised. It will be standardised and centralised when ERP is implemented. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/2023/230726-CLI Procurement Policy applicable to CLD.pdf)
+
+Expected file: CLPD.VA.ReportCons ol.FY2025.Rev16.xls m
+
+================================================================================
+[21] Query: Where can I find all the PDDM training notes?
+
+Top 5 retrieved titles:
+1. 230817-PDDM Training on ISO Procedures, 
+ Capitaland Singapore
+
+Financial Authority Limits ("FAL")* Effective 15 June 2023
+
+Ubers are to refer to Capitaland intranet (Click-afunctions & Finance-> Policies and guidelines > B. Corporate Governance -> B1, Authorisation Limits .- CLD) to ensure they use the latest version The key personnel isting is only for reference and wil be updated from time to time.
+
+Ful compliance is expected without exception. In the event of doubt, please seek clarification from your supervisor. "Applicable for Singapore, Malaysia, Philippines and ASEAN Fund (Excludes Flexible Workspace)
+
+PART 2A .: APPROVAL (To be filled in by Employer)
+
+Employer's/PM's Approval :
+
+:unselected: Approved
+
+:unselected: Disapproved
+
+Remarks
+
+Signature :
+
+Date :
+
+Name:
+
+57
+
+PART 2B : AI/AD NO
+
+Employer's Representative's Instruction No / Architect's Instruction No.
+
+Architect's Direction No :| (delete where appropriate)
+
+(delete where appropriate) Dated
+
+Dated : -
+
+DOA Related Procedures
+
+· Always refer to the latest DOA under Finance function in iHub
+
+· For approval put up to CLS MC/ Board, Initiating Dept (Head) shall be CDO and HOD to support
+
+· Approval to "Waiver of Competition for Tender" must be sought per PQ DOA prior to commencement of direct negotiation
+
+Recommendation Sign-Off for RVO
+
+· Current RVO Form Part 2A only require PM to sign- off the recommendation prior to DOA approval
+
+· To stop the practice of having multiple PDDM staff to support the RVO
+
+· Project Director/PM are overall in charge
+
+· Support from IAM/Ops etc only required if RVO is requested by them
+
+· For meetings with Consultants, Ops & IAM, to have a segment dedicated to RVOs
+
+CapitaLand
+
+CapitaLand Development
+
+73 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/230817-PDDM Training on ISO Procedures.pdf)
+
+Expected file: In-house Training
+
+================================================================================
+[22] Query: Who are the vendors who have signed universal NDA with CLD?
+
+Top 5 retrieved titles:
+1. NDA - CLD Discloser Universal for common contractors_NCL (signed), 
+ Version: CLD Discloser_Jun 2025 Universal base for PDDM common contractors
+
+7.2 Any dispute, controversy or claim arising out of, relating to, or in connection with this Agreement shall first be referred to arbitration in Singapore in accordance with the Arbitration Rules of the Singapore International Arbitration Centre for the time being in force, which are deemed to be incorporated by reference into this Clause 7.2. The dispute shall be heard by a single arbitrator, who shall be such arbitrator as the Parties to the dispute may agree, or if agreement is not reached within one (1) month of service of the notice under this Clause 7.2, as shall be appointed by the Chairman of the Singapore International Arbitration Centre. The arbitration shall be conducted in English.
+
+IN WITNESS WHEREOF, the Parties have caused this Agreement to be executed by their duly authorised officers or representatives on the date first above written.
+
+Signed For and on behalf of CapitaLand Development Pte. Ltd.
+
+Name:
+
+Goh Ah Moi
+
+Title:
+
+Chief Development Officer
+
+Ana
+
+Signed For and on behalf of Northcroft Lim Consultants Pte Ltd
+
+Name:
+
+Kathy Lu
+
+Title:
+
+Executive Director
+
+Page 6 of 6 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/25.PDDM Resource/Universal_NDA/Issued/Signed/NDA - CLD Discloser Universal for common contractors_NCL (signed).pdf)
+
+Expected file: Signed
+
+================================================================================
+[23] Query: Cost Data Queries
+
+Top 5 retrieved titles:
+1. LOA for contractors (for reference) 210416, 
+ General
+
+For the purposes of this Appendix B:
+
+“Employer Group” shall refer to CapitaLand Limited and its subsidiaries, associates and joint ventures, and “Employer Group Member” shall refer to any member of Employer Group;
+
+“Employer Indemnitees” means Employer, Employer Group, and Employer’s and each Employer Group Member’s respective directors, employees, representatives, agents, sub-contractors and advisers;
+
+“Data Protection Legislation” means all laws, regulations, guidelines and practice notes which may be promulgated or issued by the relevant data protection authorities from time to time in applicable jurisdictions, including the jurisdictions in which the Services are provided or received, which relate to:
+
+the collection, disclosure, use or processing of Personal Data, personally identifiable data (or such other equivalent terms which may be used in applicable data protection legislation); or
+
+privacy;
+
+“PDPA” shall refer to the Personal Data Protection Act (Act 26 of 2012 of Republic of Singapore) as modified from time to time, and any capitalised terms used in this Appendix B which are not defined herein but are defined in the PDPA shall bear the same meaning as set forth in the PDPA;
+
+“Personal Data” means all information which identifies or which relates to an individual, whether true or not, in any form, including:
+
+all data which is defined to be “personal data” under any applicable Data Protection Legislation; and
+
+all information, the collection, disclosure, use or processing of which is subject to Data Protection Legislation.
+
+“Contractor Personnel” means Contractor’s employees, personnel, agents, principals and contractors, who are individuals, and includes such other individuals as may be notified in writing to and approved by Employer from time to time in advance of their assignment to the Services.
+
+For the avoidance of doubt:
+
+Contractor and Contractor Personnel shall not claim for any payment, cost, compensation or reimbursement of any kind in connection with Contractor’s compliance with this Appendix B; and
+
+the provisions of this Appendix B are in addition to and without prejudice to any other provision of the Agreement. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/03. Quality Records/LOA for contractors (for reference) 210416.docx)
+
+Expected file: None
+
+================================================================================
+[24] Query: Help me find any available construction related cost benchmark?
+
+Top 5 retrieved titles:
+1. 230817-PDDM Training on ISO Procedures, 
+ The highlighted budget variance between SAP Cost Report and PDDM Cost Report was due to allowance for higher GST from 2023 onwards which has no material impact as the actual commitments to-date for construction and related costs (before GST) are within the approved PDE. The PDDM Cost Report had been updated to take into account the allowance for higher GST on 22 June 2023.
+
+SAP Cost Report is the source of truth for financial reporting to Senior Management and PDDM will endeavor to ensure that any significant variances vis-à-vis PDDM Cost Report are reconciled timeously.
+
+CapitaLand
+
+CapitaLand Development
+
+42 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/230817-PDDM Training on ISO Procedures.pdf)
+
+Expected file: Construction Related Cost Benchmark.xlsx
+
+================================================================================
+[25] Query: Help me find cost data for toilets AEI
+
+Top 5 retrieved titles:
+1. LOA for contractors (for reference) 210416, 
+ General
+
+For the purposes of this Appendix B:
+
+“Employer Group” shall refer to CapitaLand Limited and its subsidiaries, associates and joint ventures, and “Employer Group Member” shall refer to any member of Employer Group;
+
+“Employer Indemnitees” means Employer, Employer Group, and Employer’s and each Employer Group Member’s respective directors, employees, representatives, agents, sub-contractors and advisers;
+
+“Data Protection Legislation” means all laws, regulations, guidelines and practice notes which may be promulgated or issued by the relevant data protection authorities from time to time in applicable jurisdictions, including the jurisdictions in which the Services are provided or received, which relate to:
+
+the collection, disclosure, use or processing of Personal Data, personally identifiable data (or such other equivalent terms which may be used in applicable data protection legislation); or
+
+privacy;
+
+“PDPA” shall refer to the Personal Data Protection Act (Act 26 of 2012 of Republic of Singapore) as modified from time to time, and any capitalised terms used in this Appendix B which are not defined herein but are defined in the PDPA shall bear the same meaning as set forth in the PDPA;
+
+“Personal Data” means all information which identifies or which relates to an individual, whether true or not, in any form, including:
+
+all data which is defined to be “personal data” under any applicable Data Protection Legislation; and
+
+all information, the collection, disclosure, use or processing of which is subject to Data Protection Legislation.
+
+“Contractor Personnel” means Contractor’s employees, personnel, agents, principals and contractors, who are individuals, and includes such other individuals as may be notified in writing to and approved by Employer from time to time in advance of their assignment to the Services.
+
+For the avoidance of doubt:
+
+Contractor and Contractor Personnel shall not claim for any payment, cost, compensation or reimbursement of any kind in connection with Contractor’s compliance with this Appendix B; and
+
+the provisions of this Appendix B are in addition to and without prejudice to any other provision of the Agreement. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/03. Quality Records/LOA for contractors (for reference) 210416.docx)
+
+Expected file: Cost Data for Toilet in AEIs.pdf
+
+================================================================================
+[26] Query: Help me find cost analysis for PDDM projects?
+
+Top 5 retrieved titles:
+1. PDDM-Review of Change Request Procedure_Jan 2025R2, 
+ SPRINT Plot 1
+
+BP Projects
+
+Office / Retail Projects
+
+· Change Request (CR) is managed via project specific CR form to be completed by requestor e.g. Ops,
+
+· No CR form, CR is communicated and managed via email/ separate discussion/ meeting
+
+Similar practice as BP projects
+
+Leasing · Requestor to get IAM's support for PDDM to study CR
+
+· If Asset Owner is supportive of CR, PDDM will follow up with RVO
+
+· PDDM to review if CR can be supported, together with time & cost implications, if any · PDDM to submit recommendation to Asset Owner for final decision
+
+CR is not required for design changes initiated within PDDM i.e. RVO will be raised directly
+
+CR is not required for design changes initiated within PDDM i.e. RVO will be raised directly
+
+Similar practice as BP projects
+
+CapitaLand
+
+PDDM Process Review
+
+4 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/2025/PDDM-Review of Change Request Procedure_Jan 2025R2.pdf)
+
+Expected file: PDDM Cost Analysis Summary_24.08.26.p ptx
+
+================================================================================
+[27] Query: I would like to know the tenancy vetting fees for past projects?
+
+Top 5 retrieved titles:
+1. PDDM In-House Training_2025.04.29_For Circulation, 
+ 2.1 Tenancy Vetting:
+
+2.1.1 To review, check, comment and endorse on the layout drawings done by tenant's consultants. To inspect the tenancy works to ensure they are constructed in accordance with the approved design.
+
+2.1.2 Service fees payable based on the additional services stated in item 2.1 herein are as follows:
+
+Scope of Tenancy Vetting
+
+Tenancy Floor Area (m2) - Office
+
+Any unit <1,000 sq. m
+
+Any unit >1,000 sq. m but < 2,000 sq. m
+
+Any unit > 2,000 sq. m (Per floor basis)
+
+S$
+
+S$
+
+S$
+
+2.1.1
+
+Scope of Tenancy Vetting
+
+Tenancy Floor Area (m2) - Retail
+
+Any unit <1,000 sq. m
+
+Any unit >1,000 sq. m but < 2,000 sq. m
+
+Any unit > 2,000 sq. m (Per floor basis)
+
+S$
+
+S$
+
+S$
+
+2.1.1
+
+Scope of Tenancy Vetting
+
+Tenancy Floor Area (m2) - F&B, Restaurant
+
+Any unit <1,000 sq. m
+
+Any unit >1,000 sq. m but < 2,000 sq. m
+
+Any unit > 2,000 sq. m (Per floor basis)
+
+S$
+
+S$
+
+S$
+
+2.1.1 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/2025/PDDM In-House Training_2025.04.29_For Circulation.pdf)
+
+Expected file: PDDM Cost Analysis Summary_24.08.26.p ptx
+
+================================================================================
+[28] Query: I would like to find the FS done in the past for mixed development projects?
+
+Top 5 retrieved titles:
+1. PDDM In-House Training_2025.04.29_For Circulation, 
+ Temperatures will keep rising Weather is getting extreme Sea levels will rise no matter what
+
+We are running out of time
+
+B Buildings in Singapore have shorter lifespans due to rapid urban renewal, leading to higher embodied carbon emissions of 40% over a building's lifespan, compared to the global average of 30%.'
+
+Repurpose and conversions are successful in NY and LA, but is it feasible/acceptable in SG?
+
+The starting point of our research was Singapore's Central Business District, which has undergone a rapid transformation from a single-use business district to a diverse mixed-use neighbourhood in recent years, with older office buildings being demolished to make way for new mixed-use developments. Few will argue with the impetus behind this change - besides creating vibrancy, mixed-use districts have proven to be more resilient for businesses during disruptive events such as pandemics and economic recessions, with a built-in flexibility to adapt to imate roach, ot be office e such k and
+
+Can buildings be designed to adapt to shifting patterns of use over time?
+
+According to Architecture 2030, the construction sector accounts for 42% of annual global CO2 emissions, of which 27% comes from building operations, and the remaining 15% from the embodied carbon of four common building materials - cement, irc
+
+ha Construction sector accounts for en
+
+ca M
+
+42% of annual global emissions
+
+27% - Operations p sources and ad debt.
+
+15% - embodied carbon
+
+In "A Global Moratorium on New Construction" (2021), Chitect Charlotte Malterre-Barthes argued iction to be put on hold, so that architects I be forced to fall back on existing building erials to fulfill new development needs. Instead w with extractive, carbon-intensive methods, the focus would shift to methods of repair and prolongation, and new forms of adaptation and construction.
+
+While this may seem extreme, it may well be the only way to arrest the massive carbon debt that we continue to incur as we mine raw materials to make new products and buildings. 
+ filepath: (sharepoint//External Data/(CLD) AI Projects/PDDM-Index/02. Quality Procedures and Document Masterlist/Process Review/Training/2025/PDDM In-House Training_2025.04.29_For Circulation.pdf)
+
+Expected file: Mixed Development

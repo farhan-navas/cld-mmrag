@@ -11,10 +11,10 @@ from app.ingestion.indexer import get_embedding
 
 logger = logging.getLogger("tool.search_docs")
 
-def _search_client() -> SearchClient:
+def _search_client(index_name: str) -> SearchClient:
     return SearchClient(
         endpoint=config.ai_search.endpoint,
-        index_name=config.ai_search.index_name,
+        index_name=index_name,
         credential=AzureKeyCredential(config.ai_search.api_key),
     )
 
@@ -32,7 +32,7 @@ def _make_snippet(text: str, query: str, length: int = 300) -> str:
 
 def search_docs(inp: SearchInput) -> SearchOutput:
     TOP_K = 100 # for bm25 search and then maybe rerank top 8 or sth like that
-    sc = _search_client()
+    sc = _search_client(inp.index_name)
 
     # 1) Embed the query
     t0 = time.perf_counter()

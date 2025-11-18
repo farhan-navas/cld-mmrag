@@ -16,6 +16,7 @@ class Message(BaseModel):
 class AskRequest(BaseModel):
     query: str
     message_history: Optional[List[Message]] = None
+    is_cost_team_member: bool = False
 
 @app.get("/")
 def read_root():
@@ -28,9 +29,13 @@ def ask(req: AskRequest):
     # Convert Pydantic models to dicts for internal use
     history = [msg.model_dump() for msg in req.message_history] if req.message_history else None
     
-    out = run_agent(req.query, message_history=history)
+    out = run_agent(
+        req.query,
+        message_history=history,
+        is_cost_team_member=req.is_cost_team_member,
+    )
     
-    print(f"THIS TOOK {time.time() - t0} YEARS TO RUN !!!!!!!!!!!!!!!!!!!!!!!!")
+    print(f"<<<<<<<<<<<<<< THIS TOOK {time.time() - t0} YEARS TO RUN >>>>>>>>>>>>>>>>>>")
     return AskResponse(**out)
 
 @app.get("/health")

@@ -1,13 +1,13 @@
 import logging, json
-from typing import List, Optional, Dict, Any, Callable
-from openai import AzureOpenAI, AsyncAzureOpenAI
+from typing import List, Optional, Dict, Any
+from openai import AzureOpenAI
 
 from app.tools.schema import OPENAI_TOOLS, TOOL_REGISTRY
 from app.agents.query_rewrite_agent import run_query_rewrite_agent
 
 from app.config import config
 
-logger = logging.getLogger("agent")
+logger = logging.getLogger("main_agent")
 
 DEPLOYMENT = config.openai.deployment_name
 client = AzureOpenAI(
@@ -53,6 +53,11 @@ Answer style:
 - If information spans multiple projects, clearly distinguish which information comes from which project.
 - If something is missing/ambiguous, state the gap and propose one concrete follow-up.
 
+Operational modes:
+- Standard mode (default): search across the default RAG index.
+- Costing mode: when instructed, serve only data from the cost-index corpus. Treat these answers as scoped to costing workflows, mention that context in your response, and avoid referencing non-cost sources. Tool routing is already handled for you—just remember the audience and keep content cost-specific.
+- Access control: If the user is **not** in costing mode, you must refuse any request that is primarily about costing/budget/pricing data. Politely explain the restriction and invite them to contact a costing team member if they need that information.
+
 Reliability:
 - Never fabricate tool outputs or citations.
 - Don't expose raw tool payloads unless asked.
@@ -65,7 +70,12 @@ Finish condition (IMPORTANT)
 - Never output extra text after calling `finalize_answer`.
 """
 
-def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
+def run_agent(
+    query: str,
+    message_history: Optional[List[Dict[str, str]]] = None,
+    *,
+    is_cost_team_member: bool = False,
+) -> Dict[str, Any]:
     """
     Core agent loop:
     0) Optionally rewrite query using query rewrite sub-agent (if multi-turn)
@@ -78,7 +88,17 @@ def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None
         query: The user's current query
         message_history: Optional list of prior conversation messages
     """
-    logger.info("[START] run_agent query=%r", query)
+    logger.info(
+        "[START] run_agent query=%r is_cost_team_member=%s",
+        query,
+        is_cost_team_member,
+    )
+
+    target_index = (
+        config.ai_search.cost_index_name
+        if is_cost_team_member
+        else config.ai_search.index_name
+    )
     
     # STEP 0: Query Rewrite (if we have conversation history)
     optimized_query = query
@@ -96,8 +116,14 @@ def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None
     else:
         logger.info("[AGENT] Skipping query rewrite - no conversation history")
 
+    dynamic_prompt = SYSTEM_PROMPT + (
+        "\nSPECIAL MODE ACTIVE: The user is a costing team member. All searches are already scoped to the cost index—keep answers focused on costing workflows and note this context explicitly."
+        if is_cost_team_member
+        else "\nRESTRICTION: The user is not cleared for costing data. If they ask about costing/budget/pricing specifics, decline and explain that only cost team members may access that information."
+    )
+
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": dynamic_prompt},
         {"role": "user", "content": optimized_query},  # Use optimized query
     ]
 
@@ -105,7 +131,7 @@ def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None
         response = client.chat.completions.create(
             model=config.openai.deployment_name,   # Azure deployment name
             messages=messages,
-            tools=OPENAI_TOOLS,
+            tools=OPENAI_TOOLS, # pyright: ignore[reportArgumentType]
             tool_choice="auto",
             temperature=0.1,
         )
@@ -130,10 +156,10 @@ def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None
         })
 
         for tc in tool_calls:
-            name = tc.function.name
+            name = tc.function.name # pyright: ignore[reportAttributeAccessIssue]
             args = {}
             try:
-                args = json.loads(tc.function.arguments or "{}")
+                args = json.loads(tc.function.arguments or "{}") # pyright: ignore[reportAttributeAccessIssue]
             except Exception:
                 pass
 
@@ -151,6 +177,9 @@ def run_agent(query: str, message_history: Optional[List[Dict[str, str]]] = None
                 }
 
             # Otherwise: execute normal tools and append a tool message
+            if name in {"search_docs", "fetch_chunks"}:
+                args["index_name"] = target_index
+
             try:
                 out = TOOL_REGISTRY.get(name, lambda a: {"error": f"unknown tool {name}"})(args)
             except Exception as e:

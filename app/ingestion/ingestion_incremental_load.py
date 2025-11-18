@@ -8,10 +8,6 @@ from app.ingestion.indexer import search_client, ensure_index
 from app.ingestion import sharepoint_api, mapping_table, doc_processor
 from app.ingestion.utils import sha1
 
-
-logger = logging.getLogger("ingestion_incremental_load")
-
-
 class SharePointIncrementalIngestion:
     """
     Handles incremental ingestion from SharePoint using indexer.py backend.

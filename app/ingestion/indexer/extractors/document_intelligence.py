@@ -5,38 +5,29 @@ from pathlib import Path
 from azure.ai.documentintelligence.models import DocumentContentFormat
 
 from app.ingestion.indexer.clients import di_client
+from app.ingestion.indexer.chunking.normalizer import normalize_di_text, render_plain_table
 
 logger = logging.getLogger("indexer.extractors.di")
 
-def table_to_markdown(table) -> str:
-    """
-    convert a di table to markdown format
-    """
+def table_to_plaintext(table) -> str:
+    """Convert a DI table to a plain-text representation."""
     rows = table.row_count or 0
     cols = table.column_count or 0
     if rows <= 0 or cols <= 0:
         return ""
-    
-    # Pre-size grid
+
     grid = [["" for _ in range(cols)] for _ in range(rows)]
-    
     for cell in (getattr(table, "cells", None) or []):
         text = (getattr(cell, "content", None) or "").strip()
         r0 = getattr(cell, "row_index", 0) or 0
         c0 = getattr(cell, "column_index", 0) or 0
-        
         if 0 <= r0 < rows and 0 <= c0 < cols:
             grid[r0][c0] = text
-    
-    lines = []
-    for r, row in enumerate(grid):
-        line = "| " + " | ".join(row) + " |"
-        lines.append(line)
-        if r == 0:
-            lines.append("| " + " | ".join("---" for _ in row) + " |")
-    return "\n".join(lines)
 
-def slice_markdown_from_spans(result, spans) -> str:
+    return render_plain_table(grid)
+
+
+def slice_text_from_spans(result, spans) -> str:
     """
     extract markdown text from di result using spans
     """
@@ -80,7 +71,8 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
     
     # Extract paragraphs/headings
     for para in (getattr(result, "paragraphs", None) or []):
-        text = (getattr(para, "content", None) or "").strip()
+        raw = (getattr(para, "content", None) or "").strip()
+        text = normalize_di_text(raw)
         if not text:
             continue
         page = para.bounding_regions[0].page_number if getattr(para, "bounding_regions", None) else 1
@@ -94,21 +86,13 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
         })
     
     # Extract tables
-    has_doc_markdown = bool(getattr(result, "content", None))
     for table in (getattr(result, "tables", None) or []):
         page = table.bounding_regions[0].page_number if getattr(table, "bounding_regions", None) else 1
-        
-        # Try extracting from spans, fallback to cell-based rendering
-        md = slice_markdown_from_spans(result, getattr(table, "spans", None)) if has_doc_markdown else ""
-        
-        if not md:
-            md = table_to_markdown(table)
-        
-        if md.strip():
+        table_text = table_to_plaintext(table)
+        if table_text.strip():
             blocks.append({
                 "type": "table",
-                "text": md,
-                "markdown": md,
+                "text": table_text,
                 "page": page,
                 "bbox": None
             })
@@ -116,12 +100,12 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
     # Extract figures
     for fig in (getattr(result, "figures", None) or []):
         page = fig.bounding_regions[0].page_number if getattr(fig, "bounding_regions", None) else 1
-        md = slice_markdown_from_spans(result, getattr(fig, "spans", None)) or (getattr(fig, "caption", None) or "").strip()
-        if md:
+        md = slice_text_from_spans(result, getattr(fig, "spans", None)) or (getattr(fig, "caption", None) or "").strip()
+        text = normalize_di_text(md)
+        if text:
             blocks.append({
                 "type": "figure",
-                "text": md,
-                "markdown": md,
+                "text": text,
                 "page": page,
                 "bbox": None
             })
@@ -129,22 +113,22 @@ def extract_blocks_with_di(file_path: Path) -> List[Dict[str, Any]]:
     # Extract formulas
     for fm in (getattr(result, "formulas", None) or []):
         page = fm.bounding_regions[0].page_number if getattr(fm, "bounding_regions", None) else 1
-        md = slice_markdown_from_spans(result, getattr(fm, "spans", None)) or (getattr(fm, "value", None) or "").strip()
-        if md:
+        md = slice_text_from_spans(result, getattr(fm, "spans", None)) or (getattr(fm, "value", None) or "").strip()
+        text = normalize_di_text(md)
+        if text:
             blocks.append({
                 "type": "formula",
-                "text": md,
-                "markdown": md,
+                "text": text,
                 "page": page,
                 "bbox": None
             })
     
     # Fallback: if DI gave nothing structured, take whole-doc markdown
     if not blocks and getattr(result, "content", None):
+        fallback = normalize_di_text(result.content)
         blocks = [{
             "type": "paragraph",
-            "text": result.content,
-            "markdown": result.content,
+            "text": fallback,
             "page": 1,
             "bbox": None
         }]

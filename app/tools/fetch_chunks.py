@@ -11,22 +11,22 @@ from app.tools.models import FetchInput, FetchOutput, Chunk
 
 logger = logging.getLogger("tool.fetch_chunks")
 
-def _search_client() -> SearchClient:
+def _search_client(index_name: str) -> SearchClient:
     return SearchClient(
         config.ai_search.endpoint,
-        config.ai_search.index_name,
+        index_name,
         AzureKeyCredential(config.ai_search.api_key)
     )
 
 def fetch_chunks(inp: FetchInput) -> FetchOutput:
     logger.info("fetch_chunks start ids=%d", len(inp.ids or []))
 
-    sc = _search_client()
+    sc = _search_client(inp.index_name)
     if not inp.ids:
         return FetchOutput(chunks=[])
 
     first_selected = ["id", "doc_key", "chunk_index"]
-    selected = ["id", "doc_key", "chunk_index", "title", "page", "section_path", "content", "content_markdown"]
+    selected = ["id", "doc_key", "chunk_index", "title", "page", "section_path", "content"]
 
     t0 = time.perf_counter()
     
@@ -104,7 +104,6 @@ def fetch_chunks(inp: FetchInput) -> FetchOutput:
                     page=int(r.get("page",1) or 1),
                     section_path=r.get("section_path","") or "",
                     content=r.get("content","") or "",
-                    content_markdown=r.get("content_markdown")
                 ))
                 
             logger.debug("fetch_chunks fetched %d chunks for doc_key=%s", len(results), doc_key)

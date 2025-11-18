@@ -10,8 +10,7 @@ from openai.types.chat import ChatCompletionMessageParam
 
 from app.config import config
 
-logger = logging.getLogger("agent.query_rewrite")
-
+logger = logging.getLogger("query_rewrite")
 
 def _client() -> AzureOpenAI:
     return AzureOpenAI(
