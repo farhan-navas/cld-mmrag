@@ -10,7 +10,6 @@ from .clients import search_client, search_index_client, di_client, aoai_client
 from .embeddings import get_embedding, embedding_dimension
 from .index_manager import ensure_index
 from .uploader import upsert_chunks
-from .utils import sha1, stable_id, DATA_DIR, PROJECT_ROOT
 
 # Extractors
 from .extractors import (
@@ -28,9 +27,6 @@ from .chunking.pdf_chunker import chunk_blocks
 from .chunking.excel_chunker import chunk_xlsx
 from .chunking.pptx_chunker import chunk_pptx
 
-# Main entry point
-from .run_indexer import main
-
 __all__ = [
     # Clients
     "search_client",
@@ -44,11 +40,6 @@ __all__ = [
     "ensure_index",
     # Upload
     "upsert_chunks",
-    # Utils
-    "sha1",
-    "stable_id",
-    "DATA_DIR",
-    "PROJECT_ROOT",
     # Extractors
     "extract_blocks",
     "extract_blocks_with_di",
@@ -64,7 +55,5 @@ __all__ = [
     "chunk_blocks",
     "chunk_xlsx",
     "chunk_pptx",
-    # Main
-    "main",
 ]
 

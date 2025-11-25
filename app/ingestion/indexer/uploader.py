@@ -11,10 +11,9 @@ from collections import defaultdict
 from app.config import config
 from app.ingestion.indexer.clients import search_client
 from app.ingestion.indexer.embeddings import get_embedding
-from app.ingestion.indexer.utils import sha1, stable_id
+from app.ingestion.utils import sha1, stable_id
 
 logger = logging.getLogger("indexer.uploader")
-
 
 def upsert_chunks(chunks: List[Dict[str, Any]]) -> None:
     """

@@ -4,7 +4,7 @@ import tempfile
 import pandas as pd
 from pathlib import Path
 
-from app.ingestion.indexer import search_client, ensure_index
+from app.ingestion.indexer import search_client, ensure_index, upsert_chunks
 from app.ingestion import sharepoint_api, mapping_table, doc_processor
 from app.ingestion.utils import sha1
 
@@ -159,19 +159,7 @@ class SharePointIncrementalIngestion:
             # Embed and upload all chunks
             if all_chunks:
                 self.logger.info(f"\n[7] Embedding and uploading {len(all_chunks)} chunks...")
-                
-                # Get batch sizes from config
-                embed_batch_size = getattr(self.config.indexing, "embed_batch_size", 100)
-                upload_batch_size = getattr(self.config.indexing, "upload_batch_size", 100)
-                
-                # Embed chunks
-                chunks_with_embeddings = doc_processor.embed_chunks(all_chunks, embed_batch_size)
-                
-                # Prepare documents with IDs and doc_keys
-                docs = doc_processor.prepare_documents_for_upload(chunks_with_embeddings)
-                
-                # Upload to Azure AI Search
-                doc_processor.upload_to_search(docs, self.search_client, upload_batch_size)
+                upsert_chunks(all_chunks)
             else:
                 self.logger.warning("No chunks produced from processed files")
         

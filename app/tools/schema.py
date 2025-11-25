@@ -31,10 +31,7 @@ def _tool_search_docs(args: Dict[str, Any]) -> Dict[str, Any]:
     a = SearchSchema(**args)
     
     # Build filepath prefix for filtering
-    filter_expr = None
-    if a.project_name:
-        # Create filepath prefix to match against
-        filter_expr = f"data/preprocessed/{a.project_name}/"
+    filter_expr = a.project_name.strip() if a.project_name else None
     
     res = search_docs(SearchInput(query=a.query, filter=filter_expr, index_name=a.index_name))
     out = SearchOutput(

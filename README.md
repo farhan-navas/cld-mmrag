@@ -12,15 +12,14 @@ Multimodal Retrieval‑Augmented Generation (RAG) system that lets subject‑mat
 | **Backend API / Agents (FastAPI)** | Receives chat turns, orchestrates query rewrite + main agent, enforces cost/non-cost policies, routes tool invocations.    | `app/main.py`, `app/agents/main_agent.py`, `app/agents/query_rewrite_agent.py` |
 | **Retrieval Layer**                | Azure AI Search hybrid search across standard + cost indices, chunk fetch tools, math/table utilities.                     | `app/tools/*.py`, `app/models.py`, `app/schema.py`                             |
 | **Ingestion Pipeline**             | SharePoint sync, MarkItDown + Azure Document Intelligence extraction, normalization + chunking, embeddings, index upserts. | `app/ingestion/**` (see dedicated README)                                      |
-| **External Services**              | Azure AI Search, Azure OpenAI, Azure Document Intelligence, SharePoint Graph, optional Florence/vision models.             | configured via `.env` / `app/config.py`                                        |
+| **External Services**              | Azure AI Search, Azure OpenAI, Azure Document Intelligence, SharePoint Graph                                               | configured via `.env` / `app/config.py`                                        |
 
 **Execution flow**
 
-1. User submits a question in the Streamlit UI along with the "Cost Team" toggle.
+1. User submits a question in the Streamlit UI along with the "Cost Team" toggle (true or false).
 2. FastAPI receives the request, calls the query-rewrite agent for clarifications, then hands the prompt to the main agent with guardrails.
 3. The agent decides which tools to call (search, chunk fetch, math eval, etc.), injecting the correct search index (standard vs. cost) based on the toggle.
 4. Retrieved chunks + metadata are fused into a grounded response with inline citations.
-5. Background ingestion jobs keep Azure AI Search up-to-date by chunking new/changed documents and pushing embeddings.
 
 ## Installation
 
@@ -28,41 +27,33 @@ Multimodal Retrieval‑Augmented Generation (RAG) system that lets subject‑mat
    - Python 3.13
    - `uv` (recommended) or `pip`
    - Azure resources: AI Search, OpenAI deployment, Document Intelligence (if using DI-first mode), SharePoint app registration
-2. **Clone & enter the repo**
-   ```bash
-   git clone https://github.com/farhan-navas/cld-mmrag.git
-   cd cld-mmrag
-   ```
-3. **Create environment**
+2. **Create environment**
    ```bash
    uv sync
    ```
-4. **Configure secrets**
-   - Copy `.env.example` to `.env` (create one if not provided).
-   - Fill in `AZURE_SEARCH_ENDPOINT`, `AZURE_SEARCH_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_DOC_INTELLIGENCE_*`, SharePoint creds, etc.
-   - Optional knobs:
-     - `INDEXING_EXTRACTOR=markitdown|di` (primary extractor; whichever you pick auto-falls back to the other)
-     - `MODEL_CHOICE=florence2|phi3-vision`
-     - Logging toggles (`LOG_LEVEL`, `LOG_TO_CONSOLE`).
+3. **Configure secrets**
+   - Copy `.env.example` to `.env`, and fill in with env variables
 
 ## Running the application
 
 1. **Start the FastAPI backend**
    ```bash
-   uv run uvicorn app.main:app --reload
+   uv run fastapi dev app/main.py
    ```
 2. **Start the Streamlit UI**
    ```bash
-   uv run streamlit run frontend/streamlit_app.py
+   streamlit run frontend/streamlit_app.py
    ```
 3. **Chat workflow**
    - Use the sidebar toggle "Is costing team member" to include cost-index data.
    - Ask questions; responses show citations linking to the document viewer endpoint.
 4. **Background jobs**
    - To run ingestion manually: `uv run python -m app.ingestion.run_ingestion`
-   - Incremental SharePoint sync: `uv run python -m app.ingestion.ingestion_incremental_load`
+   - To run validation script: `uv run scripts/validate_queries.py` -> make sure that the backend is running first!
+   - To convert users' query pdf to query-list: `uv run scripts/convert-pdf-to-json.py` -> make sure to change PDF path to query PDF path!
+   - Can also use `convert-json-to-excel.py` in the same way
 
-## Scripts & Functions Overview
+## Scripts & Agent Tools Overview
 
 | Location                                | Entry point                | Purpose                                                                       |
 | --------------------------------------- | -------------------------- | ----------------------------------------------------------------------------- |
@@ -74,7 +65,6 @@ Multimodal Retrieval‑Augmented Generation (RAG) system that lets subject‑mat
 | `app/tools/table_qa.py`, `math_eval.py` | Utility tools              | Table math + arithmetic helpers referenced by the agent.                      |
 | `app/ingestion/run_ingestion.py`        | `main()`                   | Batch ingestion orchestrator (ensure index, scan data, chunk, embed, upload). |
 | `app/ingestion/doc_processor.py`        | `process_file_to_chunks()` | Handles per-file extraction, chunking, embedding glue.                        |
-| `scripts/*.py`                          | CLI helpers                | Conversions (PDF→JSON, JSON→Excel), validation utilities.                     |
 
 For ingestion specifics see `app/ingestion/README.md`.
 
@@ -87,18 +77,6 @@ For ingestion specifics see `app/ingestion/README.md`.
 - **Tool orchestration**: The main agent follows a tool-augmented plan—search, fetch, optional math/table reasoning—before drafting an answer with citations. Prompts enforce that unauthorized cost requests are declined.
 - **SharePoint ingestion**: Files are streamed down, hashed, processed into chunks, embedded via Azure OpenAI, and uploaded to Azure AI Search. Incremental ingestion tracks doc keys for deletes/updates.
 
-## Demo
-
-| Artifact                 | Description                                                                                                                                          |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Screenshot (placeholder) | Add a PNG/GIF under `docs/images/demo-chat.png` showing the Streamlit UI with citations.                                                             |
-| Sample Q&A               | “What is the refund tender deposit process?” → Response citing `QR-PD-33 Refund Tender Deposit Memo`, referencing the chunk path and shareable link. |
-| Cost toggle walkthrough  | Two short bullets explaining how enabling the toggle switches indices and how unauthorized requests are rejected with a templated message.           |
-
-## Next Steps
-
-- Integrate Florence-based embeddings for late interaction.
-- Expand ingestion monitors to alert on extractor fallbacks.
-- Automate deployment with AZD once IaC is finalized.
+## More Tips
 
 For a deep dive into ingestion stages, configuration, and troubleshooting, continue to [`app/ingestion/README.md`](app/ingestion/README.md).

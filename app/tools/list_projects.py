@@ -1,4 +1,4 @@
-from typing import List, Set, Optional
+from typing import Set, Optional
 import logging
 
 from azure.core.credentials import AzureKeyCredential
@@ -18,10 +18,6 @@ def _derive_project_name(filepath: str) -> Optional[str]:
     parts = [p for p in filepath.split("/") if p]
     if not parts:
         return None
-
-    # Legacy on-disk layout: data/preprocessed/<project>/...
-    if len(parts) >= 3 and parts[0] == "data" and parts[1] == "preprocessed":
-        return parts[2]
 
     # SharePoint layout: sharepoint/<folder path...>
     if parts[0] == "sharepoint":

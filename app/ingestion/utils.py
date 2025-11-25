@@ -1,7 +1,6 @@
 import hashlib
 from typing import Optional
 
-
 # Mapping from MIME types to file extensions
 MIME_TO_EXTENSION = {
     "text/plain": ".txt",
