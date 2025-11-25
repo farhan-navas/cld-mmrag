@@ -212,3 +212,4 @@ __marimo__/
 data/
 model_cache/
 sharepoint-mapping-table.xlsx
+sharepoint-mapping-table-*.xlsx

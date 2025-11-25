@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 import logging
 
 from azure.core.credentials import AzureKeyCredential
@@ -8,6 +8,33 @@ from app.config import config
 from app.tools.models import ListProjectsOutput, ProjectInfo
 
 logger = logging.getLogger("tool.list_projects")
+
+
+def _derive_project_name(filepath: str) -> Optional[str]:
+    """Infer a project name from common filepath layouts."""
+    if not filepath:
+        return None
+
+    parts = [p for p in filepath.split("/") if p]
+    if not parts:
+        return None
+
+    # Legacy on-disk layout: data/preprocessed/<project>/...
+    if len(parts) >= 3 and parts[0] == "data" and parts[1] == "preprocessed":
+        return parts[2]
+
+    # SharePoint layout: sharepoint/<folder path...>
+    if parts[0] == "sharepoint":
+        sharepoint_parts = parts[1:]
+        if not sharepoint_parts:
+            return None
+
+        # Skip the standard "Shared Documents" prefix if present
+        if sharepoint_parts[0].lower() == "shared documents" and len(sharepoint_parts) > 1:
+            return sharepoint_parts[1]
+        return sharepoint_parts[0]
+
+    return None
 
 def _search_client() -> SearchClient:
     return SearchClient(
@@ -37,30 +64,25 @@ def list_projects() -> ListProjectsOutput:
         project_details: dict = {}  # project_name -> {doc_count, sample_files}
         
         for r in results:
-            filepath = r.get("filepath", "")
-            if not filepath:
+            filepath = r.get("filepath", "") or ""
+            project_name = _derive_project_name(filepath)
+            if not project_name:
                 continue
-            
-            # Parse: data/preprocessed/{project_name}/...
-            parts = filepath.split("/")
-            if len(parts) >= 3 and parts[0] == "data" and parts[1] == "preprocessed":
-                project_name = parts[2]
-                projects.add(project_name)
-                
-                # Track project details
-                if project_name not in project_details:
-                    project_details[project_name] = {
-                        "doc_count": 0,
-                        "sample_files": []
-                    }
-                
-                project_details[project_name]["doc_count"] += 1
-                
-                # Keep sample filenames (max 3)
-                if len(project_details[project_name]["sample_files"]) < 3:
-                    filename = parts[-1] if len(parts) > 3 else ""
-                    if filename:
-                        project_details[project_name]["sample_files"].append(filename)
+
+            projects.add(project_name)
+
+            if project_name not in project_details:
+                project_details[project_name] = {
+                    "doc_count": 0,
+                    "sample_files": []
+                }
+
+            project_details[project_name]["doc_count"] += 1
+
+            if len(project_details[project_name]["sample_files"]) < 3:
+                sample_file = filepath.split("/")[-1]
+                if sample_file:
+                    project_details[project_name]["sample_files"].append(sample_file)
         
         # Build ProjectInfo objects
         project_list = []

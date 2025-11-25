@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import logging, re, time
 
 from azure.core.credentials import AzureKeyCredential
@@ -8,6 +8,7 @@ from azure.search.documents.models import VectorizedQuery
 from app.config import config
 from app.tools.models import SearchInput, SearchOutput, Hit
 from app.ingestion.indexer import get_embedding
+from app.tools.list_projects import _derive_project_name
 
 logger = logging.getLogger("tool.search_docs")
 
@@ -76,10 +77,21 @@ def search_docs(inp: SearchInput) -> SearchOutput:
     # 4) Apply project filter if provided (post-processing)
     if project_filter:
         filtered_results = []
+        normalized_filter = project_filter.strip()
+
         for r in results:
-            filepath = r.get("filepath", "")
-            if filepath.startswith(project_filter):
+            filepath = r.get("filepath", "") or ""
+            project_name = _derive_project_name(filepath)
+
+            match = False
+            if project_name and project_name == normalized_filter:
+                match = True
+            elif filepath.startswith(normalized_filter):
+                match = True
+
+            if match:
                 filtered_results.append(r)
+
         results = filtered_results
         logger.info("After project filtering: %d results remain", len(results))
 
