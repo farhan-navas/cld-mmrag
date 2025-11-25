@@ -80,6 +80,7 @@ def setup_logging():
             "indexer.extractors.di": {"handlers": root_handlers, "level": level, "propagate": False},
             "indexer.extractors.excel": {"handlers": root_handlers, "level": level, "propagate": False},
             "indexer.extractors.pptx": {"handlers": root_handlers, "level": level, "propagate": False},
+            "indexer.extractors.markitdown": {"handlers": root_handlers, "level": level, "propagate": False},
 
             # Tools
             "tool.list_projects": {"handlers": root_handlers, "level": level, "propagate": False},
@@ -123,7 +124,7 @@ class AzureAISearchConfig:
     """Configuration for Azure AI Search."""
     endpoint: str
     api_key: str
-    index_name: str = "rag-index-18-11" # prev index_names: ["rag-index"]
+    index_name: str = "rag-index-24-11" # prev index_names: ["rag-index", "rag-index-18-11", ...]
     cost_index_name: str = "cost-index"
 
 @dataclass
@@ -164,7 +165,8 @@ class IndexingConfig:
     upload_batch_size: int = 500
     include_tables: bool = True
     supported_exts: tuple[str, ...] = (".pdf", ".docx", ".pptx", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".xlsx", ".csv")
-    
+    block_extractor: Literal["di", "markitdown"] = "markitdown"
+
     xlsx_rows_per_chunk: int = 100
     xlsx_cols_per_group: int = 12
     pptx_include_notes: bool = True
@@ -195,7 +197,12 @@ class Config:
             deployment_name=os.getenv("AZURE_OPENAI_MODEL", "gpt4o")
         )
 
-        self.indexing = IndexingConfig()
+        extractor_mode = os.getenv("INDEXING_EXTRACTOR", "markitdown").lower()
+        if extractor_mode not in ("di", "markitdown"):
+            _logger.warning("Unknown INDEXING_EXTRACTOR '%s'. Falling back to markitdown.", extractor_mode)
+            extractor_mode = "markitdown"
+
+        self.indexing = IndexingConfig(block_extractor=extractor_mode)
 
         self.sharepoint = SharePointConfig(
             ms_graph_api_endpoint=os.getenv("MS_GRAPH_API_ENDPOINT", ""),

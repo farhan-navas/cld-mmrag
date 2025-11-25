@@ -14,7 +14,6 @@ from app.ingestion.indexer.chunking.normalizer import normalize_di_text, normali
 
 logger = logging.getLogger("indexer.chunking.pdf")
 
-
 def chunk_blocks(blocks: List[Dict[str, Any]], title: str, filepath: str) -> List[Dict[str, Any]]:
     """
     Chunk blocks using recursive splitting strategy.

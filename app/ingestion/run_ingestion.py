@@ -5,16 +5,15 @@ from pathlib import Path
 from app.ingestion.ingestion_incremental_load import SharePointIncrementalIngestion
 from app.config import config
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s [%(name)s] %(message)s'
-)
 logger = logging.getLogger("run-ingestion")
 
-# Configuration
+# Configuration (for regular ingestion)
 SHAREPOINT_FOLDER = "/External Data/(CLD) AI Projects/PDDM-Index"
-MAPPING_FILE = Path("app/sharepoint-mapping-table.xlsx")  # local excel mapping table
+MAPPING_FILE = Path("app/sharepoint-mapping-table-24-11.xlsx")  # local excel mapping table
+
+# Configuration (for COST DATA ingestion)
+# SHAREPOINT_FOLDER = "/External Data/(CLD) AI Projects/Cost-Index"
+# MAPPING_FILE = Path("app/sharepoint-cost-mapping-table.xlsx") # local mapping table -> COST DATA
 
 def run_ingestion():
     logger.info("=" * 60)

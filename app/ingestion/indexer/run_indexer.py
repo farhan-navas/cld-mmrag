@@ -16,7 +16,7 @@ from app.config import config
 from app.ingestion.indexer.index_manager import ensure_index
 from app.ingestion.indexer.utils import DATA_DIR
 from app.ingestion.indexer.chunking.strategies import route_profile
-from app.ingestion.indexer.extractors.document_intelligence import extract_blocks_with_di
+from app.ingestion.indexer import extract_blocks
 from app.ingestion.indexer.chunking.text_splitter import split_fenced_code_blocks
 from app.ingestion.indexer.chunking.pdf_chunker import chunk_blocks
 from app.ingestion.indexer.chunking.excel_chunker import chunk_xlsx
@@ -62,8 +62,8 @@ def main():
                 chunks = chunk_pptx(path, title=path.stem, filepath=filepath_str)
             else:
                 # Current DI path (pdf/docx/images)
-                print(f"  - Using Document Intelligence chunking strategy")
-                blocks = extract_blocks_with_di(path)
+                print(f"  - Using Document Intelligence/Markitdown chunking strategy")
+                blocks = extract_blocks(path)
                 print(f"  - blocks: {len(blocks)}")
                 if len(blocks) < 1:
                     print("  ! No blocks extracted (DI may have returned empty). Skipping.")

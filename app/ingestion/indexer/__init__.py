@@ -13,9 +13,13 @@ from .uploader import upsert_chunks
 from .utils import sha1, stable_id, DATA_DIR, PROJECT_ROOT
 
 # Extractors
-from .extractors.document_intelligence import extract_blocks_with_di
-from .extractors.excel import extract_excel_sheets
-from .extractors.powerpoint import extract_slides
+from .extractors import (
+    extract_blocks,
+    extract_blocks_with_di,
+    extract_blocks_with_markitdown,
+    extract_excel_sheets,
+    extract_slides,
+)
 
 # Chunking
 from .chunking.strategies import route_profile, get_chunker
@@ -46,7 +50,9 @@ __all__ = [
     "DATA_DIR",
     "PROJECT_ROOT",
     # Extractors
+    "extract_blocks",
     "extract_blocks_with_di",
+    "extract_blocks_with_markitdown",
     "extract_excel_sheets",
     "extract_slides",
     # Chunking

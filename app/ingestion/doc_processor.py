@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any
 
-from app.ingestion.indexer import extract_blocks_with_di, chunk_blocks, split_fenced_code_blocks, get_embedding
+from app.ingestion.indexer import extract_blocks, chunk_blocks, split_fenced_code_blocks, get_embedding
 from app.ingestion.utils import sha1, stable_id
 
 
@@ -22,12 +22,12 @@ def process_file_to_chunks(
     logger.info(f"Processing file: {file_path.name}")
     
     try:
-        # Step 1: Extract blocks with Azure Document Intelligence
-        blocks = extract_blocks_with_di(file_path)
+        # Step 1: Extract blocks using configured extractor
+        blocks = extract_blocks(file_path)
         logger.info(f"  - Extracted {len(blocks)} blocks")
         
         if len(blocks) < 1:
-            logger.warning(f"  ! No blocks extracted from {file_path.name}")
+            logger.warning(f"! No blocks extracted from {file_path.name}")
             return []
         
         # Step 2: Split fenced code blocks
